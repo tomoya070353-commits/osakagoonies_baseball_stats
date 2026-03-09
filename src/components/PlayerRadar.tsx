@@ -5,6 +5,7 @@ import {
   Radar,
   PolarGrid,
   PolarAngleAxis,
+  PolarRadiusAxis,
   ResponsiveContainer,
 } from "recharts";
 import type { PlayerStats } from "@/types";
@@ -15,11 +16,11 @@ interface PlayerRadarProps {
 
 /* ── A〜F グレード変換 ───────────────────────────── */
 function toGrade(score: number): { grade: string; color: string; bg: string } {
-  if (score >= 85) return { grade: "A", color: "#fbbf24", bg: "rgba(251,191,36,0.15)"  };
-  if (score >= 65) return { grade: "B", color: "#10b981", bg: "rgba(16,185,129,0.12)"  };
-  if (score >= 45) return { grade: "C", color: "#60a5fa", bg: "rgba(96,165,250,0.12)"  };
-  if (score >= 25) return { grade: "D", color: "#a78bfa", bg: "rgba(167,139,250,0.12)" };
-  if (score >= 10) return { grade: "E", color: "#fb923c", bg: "rgba(249,115,22,0.12)"  };
+  if (score >= 80) return { grade: "A", color: "#fbbf24", bg: "rgba(251,191,36,0.15)"  };
+  if (score >= 60) return { grade: "B", color: "#10b981", bg: "rgba(16,185,129,0.12)"  };
+  if (score >= 40) return { grade: "C", color: "#60a5fa", bg: "rgba(96,165,250,0.12)"  };
+  if (score >= 20) return { grade: "D", color: "#a78bfa", bg: "rgba(167,139,250,0.12)" };
+  if (score >= 1)  return { grade: "E", color: "#fb923c", bg: "rgba(249,115,22,0.12)"  };
   return               { grade: "F", color: "#f87171", bg: "rgba(248,113,113,0.12)"  };
 }
 
@@ -113,6 +114,12 @@ export default function PlayerRadar({ player }: PlayerRadarProps) {
                 <PolarAngleAxis
                   dataKey="subject"
                   tick={{ fill: "rgba(255,255,255,0.50)", fontSize: 10, fontWeight: 600 }}
+                />
+                <PolarRadiusAxis 
+                  angle={30} 
+                  domain={[0, 100]} 
+                  tick={false} 
+                  axisLine={false} 
                 />
                 <Radar
                   name={player.name}
