@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { PlayerStats } from "@/types";
-import type { PitcherStats, TeamSeasonStats } from "@/app/actions";
+import type { PitcherStats, TeamSeasonStats, TeamHistory } from "@/app/actions";
 import CompareDashboard from "@/components/CompareDashboard";
 import SalaryDashboard from "@/components/SalaryDashboard";
 import MilestoneDashboard from "@/components/MilestoneDashboard";
@@ -15,6 +15,7 @@ interface ClubhouseDashboardProps {
   players: PlayerStats[];
   pitchers: PitcherStats[];
   teamStats: TeamSeasonStats | null;
+  teamHistory: TeamHistory;
 }
 
 const MENU_ITEMS = [
@@ -48,14 +49,14 @@ const MENU_ITEMS = [
   },
 ];
 
-export default function ClubhouseDashboard({ players, pitchers, teamStats }: ClubhouseDashboardProps) {
+export default function ClubhouseDashboard({ players, pitchers, teamStats, teamHistory }: ClubhouseDashboardProps) {
   const [subView, setSubView] = useState<SubView>(null);
 
   if (subView === "milestone") {
     return (
       <div>
         <BackBar label="🏆 チームマイルストーン" onBack={() => setSubView(null)} />
-        <MilestoneDashboard teamStats={teamStats} pitchers={pitchers} />
+        <MilestoneDashboard teamStats={teamStats} pitchers={pitchers} teamHistory={teamHistory} />
       </div>
     );
   }

@@ -1,13 +1,14 @@
 import { Suspense } from "react";
-import { getPlayersData, getTeamStats, getPitchingData } from "./actions";
+import { getPlayersData, getTeamStats, getPitchingData, getTeamHistory } from "./actions";
 import AppClient from "@/components/AppClient";
 import { Loader2 } from "lucide-react";
 
 export default async function Home() {
-  const [players, teamStats, pitchers] = await Promise.all([
+  const [players, teamStats, pitchers, teamHistory] = await Promise.all([
     getPlayersData(),
     getTeamStats("2026"),
     getPitchingData(),
+    getTeamHistory(),
   ]);
 
   return (
@@ -19,7 +20,7 @@ export default async function Home() {
         </div>
       }
     >
-      <AppClient players={players} teamStats={teamStats} pitchers={pitchers} />
+      <AppClient players={players} teamStats={teamStats} pitchers={pitchers} teamHistory={teamHistory} />
     </Suspense>
   );
 }

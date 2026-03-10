@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { PlayerStats } from "@/types";
-import type { TeamSeasonStats, PitcherStats } from "@/app/actions";
+import type { TeamSeasonStats, PitcherStats, TeamHistory } from "@/app/actions";
 import BottomNav from "@/components/BottomNav";
 import TeamDashboard from "@/components/TeamDashboard";
 import RankingTab from "@/components/RankingTab";
@@ -16,9 +16,10 @@ interface AppClientProps {
   players: PlayerStats[];
   teamStats: TeamSeasonStats | null;
   pitchers: PitcherStats[];
+  teamHistory: TeamHistory;
 }
 
-export default function AppClient({ players, teamStats, pitchers }: AppClientProps) {
+export default function AppClient({ players, teamStats, pitchers, teamHistory }: AppClientProps) {
   const [activeTab, setActiveTab] = useState<Tab>("team");
   const [selected, setSelected] = useState<PlayerStats>(players[0]);
 
@@ -62,7 +63,7 @@ export default function AppClient({ players, teamStats, pitchers }: AppClientPro
           />
         )}
         {activeTab === "clubhouse" && (
-          <ClubhouseDashboard players={players} pitchers={pitchers} teamStats={teamStats} />
+          <ClubhouseDashboard players={players} pitchers={pitchers} teamStats={teamStats} teamHistory={teamHistory} />
         )}
       </main>
 

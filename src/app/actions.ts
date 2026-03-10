@@ -42,20 +42,27 @@ const TEAM_CSV_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vRMhlYtPBRM_4PMS6d8_UjP0n_OfFS9YzJWzvc6XdPAthLaCGt17A1bsUAqjPSKj8S9NTL8up8ZZea2/pub?gid=1875585265&single=true&output=csv";
 
 export async function getTeamStats(year = "2026"): Promise<TeamSeasonStats | null> {
-  const res = await fetch(TEAM_CSV_URL, { next: { revalidate: 3600 } });
+  const all = await getAllTeamStats();
+  return all.find((r) => r.year === year) ?? null;
+}
+
+export async function getAllTeamStats(): Promise<TeamSeasonStats[]> {
+  const res  = await fetch(TEAM_CSV_URL, { next: { revalidate: 3600 } });
   const text = await res.text();
 
-  const rows = text.trim().split(/\r?\n/);
+  const rows   = text.trim().split(/\r?\n/);
   const header = rows[0].split(",");
+  const col    = (name: string) => header.indexOf(name);
 
-  const col = (name: string) => header.indexOf(name);
+  const results: TeamSeasonStats[] = [];
 
   for (const row of rows.slice(1)) {
     const cells = row.split(",");
-    if (cells[col("年度")] !== year) continue;
+    const year  = cells[col("年度")]?.trim();
+    if (!year || isNaN(Number(year))) continue;
 
-    return {
-      year:         cells[col("年度")],
+    results.push({
+      year,
       games:        Number(cells[col("試合数")]),
       wins:         Number(cells[col("勝ち")]),
       losses:       Number(cells[col("負け")]),
@@ -67,11 +74,41 @@ export async function getTeamStats(year = "2026"): Promise<TeamSeasonStats | nul
       homeRuns:     Number(cells[col("本塁打")]),
       stolenBases:  Number(cells[col("盗塁")]),
       era:          Number(cells[col("防御率")]),
-    };
+    });
   }
 
-  return null;
+  return results;
 }
+
+export interface TeamHistory {
+  current:    TeamSeasonStats | null;
+  lastYear:   TeamSeasonStats | null;
+  record:     TeamSeasonStats | null; // 歴代最多得点の年
+  allTime:    { wins: number; runs: number; homeRuns: number; stolenBases: number };
+}
+
+export async function getTeamHistory(): Promise<TeamHistory> {
+  const all     = await getAllTeamStats();
+  const current = all.find((r) => r.year === "2026") ?? null;
+  const lastYear = all.find((r) => r.year === "2025") ?? null;
+
+  // 歴代最高値（各指標の最大値）
+  const allTime = {
+    wins:        Math.max(...all.map((r) => r.wins),        0),
+    runs:        Math.max(...all.map((r) => r.runs),        0),
+    homeRuns:    Math.max(...all.map((r) => r.homeRuns),    0),
+    stolenBases: Math.max(...all.map((r) => r.stolenBases), 0),
+  };
+
+  // 歴代最多得点の年を record として返す（代表）
+  const record = all.reduce<TeamSeasonStats | null>((best, r) => {
+    if (!best || r.runs > best.runs) return r;
+    return best;
+  }, null);
+
+  return { current, lastYear, record, allTime };
+}
+
 
 // ── 投手成績 ──────────────────────────────────────────────────
 export interface PitcherStats {
