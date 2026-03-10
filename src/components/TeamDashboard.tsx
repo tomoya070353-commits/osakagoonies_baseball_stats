@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
+import { motion, useInView } from "framer-motion";
 import type { PlayerStats } from "@/types";
 import type { TeamSeasonStats } from "@/app/actions";
 import ContactChart from "@/components/ContactChart";
@@ -11,7 +13,51 @@ interface TeamDashboardProps {
   teamStats: TeamSeasonStats | null;
 }
 
-// ── 小カード（数値一覧用） ──────────────────────────────
+// ── アニメーション設定 ──────────────────────────────────────────
+const fadeUp = {
+  hidden:  { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0 },
+};
+function stagger(i: number) {
+  return { transition: { duration: 0.45, ease: "easeOut", delay: i * 0.1 } };
+}
+
+// ── カウントアップ Hook ────────────────────────────────────────
+function useCountUp(target: number, duration = 1000): number {
+  const [val, setVal] = useState(0);
+  const ref = useRef(false);
+  useEffect(() => {
+    if (ref.current) return;
+    ref.current = true;
+    const start   = performance.now();
+    const tick = (now: number) => {
+      const t = Math.min((now - start) / duration, 1);
+      const ease = 1 - Math.pow(1 - t, 3); // easeOutCubic
+      setVal(Math.round(ease * target));
+      if (t < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }, [target, duration]);
+  return val;
+}
+
+// ── アニメーション付きプログレスバー ──────────────────────────
+function AnimatedBar({ pct, className = "bg-white" }: { pct: number; className?: string }) {
+  const ref    = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true });
+  return (
+    <div ref={ref} className="w-full h-2 bg-white/20 rounded-full overflow-hidden">
+      <motion.div
+        className={`h-full rounded-full ${className}`}
+        initial={{ width: 0 }}
+        animate={{ width: inView ? `${pct * 100}%` : 0 }}
+        transition={{ duration: 1, ease: "easeOut" }}
+      />
+    </div>
+  );
+}
+
+// ── 小カード ──────────────────────────────────────────────────
 function MiniCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
     <div className="bg-white border border-slate-200 shadow-sm rounded-xl p-3 flex flex-col gap-0.5">
@@ -22,9 +68,15 @@ function MiniCard({ label, value, sub }: { label: string; value: string; sub?: s
   );
 }
 
-// ── チームWL大カード ──────────────────────────────────
+// ── WinLossCard（アニメーション付き） ─────────────────────────
 function WinLossCard({ stats }: { stats: TeamSeasonStats }) {
+  const wins   = useCountUp(stats.wins,   900);
+  const losses = useCountUp(stats.losses, 900);
+  const runs   = useCountUp(stats.runs,   950);
+  const ra     = useCountUp(stats.runsAllowed, 950);
+  const diff   = runs - ra;
   const winPct = stats.winRate.toFixed(3).replace(/^0/, "");
+
   return (
     <div className="bg-[#1e3a5f] rounded-2xl p-5 text-white flex flex-col gap-3">
       {/* 年度・試合数 */}
@@ -33,11 +85,11 @@ function WinLossCard({ stats }: { stats: TeamSeasonStats }) {
         <span className="text-white/60 text-xs">{stats.games}試合</span>
       </div>
 
-      {/* 勝敗 */}
+      {/* 勝敗（カウントアップ） */}
       <div className="flex items-end gap-1.5">
-        <span className="text-5xl font-black leading-none">{stats.wins}</span>
+        <span className="text-5xl font-black leading-none">{wins}</span>
         <span className="text-white/50 text-lg font-bold mb-0.5">勝</span>
-        <span className="text-3xl font-black leading-none ml-2">{stats.losses}</span>
+        <span className="text-3xl font-black leading-none ml-2">{losses}</span>
         <span className="text-white/50 text-lg font-bold mb-0.5">敗</span>
         {stats.draws > 0 && (
           <>
@@ -47,35 +99,30 @@ function WinLossCard({ stats }: { stats: TeamSeasonStats }) {
         )}
       </div>
 
-      {/* 勝率バー */}
+      {/* 勝率アニメバー */}
       <div>
         <div className="flex items-center justify-between mb-1">
           <span className="text-white/60 text-xs">勝率</span>
           <span className="text-white font-black text-lg">{winPct}</span>
         </div>
-        <div className="w-full h-2 bg-white/20 rounded-full">
-          <div
-            className="h-full bg-white rounded-full transition-all duration-700"
-            style={{ width: `${stats.winRate * 100}%` }}
-          />
-        </div>
+        <AnimatedBar pct={stats.winRate} />
       </div>
 
       {/* 得点・失点 */}
       <div className="flex gap-4 pt-1 border-t border-white/10">
         <div>
           <p className="text-white/50 text-[10px] uppercase tracking-wider">得点</p>
-          <p className="text-white font-black text-xl">{stats.runs}</p>
+          <p className="text-white font-black text-xl">{runs}</p>
         </div>
         <div className="w-px bg-white/20" />
         <div>
           <p className="text-white/50 text-[10px] uppercase tracking-wider">失点</p>
-          <p className="text-white/70 font-black text-xl">{stats.runsAllowed}</p>
+          <p className="text-white/70 font-black text-xl">{ra}</p>
         </div>
         <div className="ml-auto text-right">
           <p className="text-white/50 text-[10px] uppercase tracking-wider">得失点差</p>
-          <p className={`font-black text-xl ${stats.runs - stats.runsAllowed >= 0 ? "text-emerald-300" : "text-red-300"}`}>
-            {stats.runs - stats.runsAllowed >= 0 ? "+" : ""}{stats.runs - stats.runsAllowed}
+          <p className={`font-black text-xl ${diff >= 0 ? "text-emerald-300" : "text-red-300"}`}>
+            {diff >= 0 ? "+" : ""}{diff}
           </p>
         </div>
       </div>
@@ -83,10 +130,10 @@ function WinLossCard({ stats }: { stats: TeamSeasonStats }) {
   );
 }
 
+// ── メイン ──────────────────────────────────────────────────
 export default function TeamDashboard({ players, teamStats }: TeamDashboardProps) {
   if (players.length === 0) return null;
 
-  // ── チーム合算のContactChart用ダミーオブジェクト ──
   const teamAggregate = {
     grounders: players.reduce((s, p) => s + p.grounders, 0),
     flies:     players.reduce((s, p) => s + p.flies, 0),
@@ -95,52 +142,58 @@ export default function TeamDashboard({ players, teamStats }: TeamDashboardProps
 
   return (
     <div className="flex flex-col gap-5 py-4 pb-8">
-      {/* ── RPG レベルカード（最上部） ── */}
-      <TeamLevelCard teamStats={teamStats} />
 
-      {/* ヘッダー */}
-      <div className="px-5">
+      {/* 0: RPGレベルカード */}
+      <motion.div variants={fadeUp} initial="hidden" animate="visible" {...stagger(0)}>
+        <TeamLevelCard teamStats={teamStats} />
+      </motion.div>
+
+      {/* 1: ヘッダー */}
+      <motion.div className="px-5" variants={fadeUp} initial="hidden" animate="visible" {...stagger(1)}>
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1e3a5f]/10 text-[#1e3a5f] text-xs mb-3 border border-[#1e3a5f]/20">
           <Users size={12} />
           <span>{players.length}名登録</span>
         </div>
         <h1 className="text-3xl font-black text-slate-900 tracking-tight">チーム</h1>
         <p className="text-slate-400 text-sm mt-1">Osaka Goonies — 2026年度</p>
-      </div>
+      </motion.div>
 
-      {/* 勝敗ビッグカード */}
       {teamStats ? (
-        <div className="px-5 flex flex-col gap-4">
-          <WinLossCard stats={teamStats} />
+        <>
+          {/* 2: 勝敗カード */}
+          <motion.div className="px-5" variants={fadeUp} initial="hidden" animate="visible" {...stagger(2)}>
+            <WinLossCard stats={teamStats} />
+          </motion.div>
 
-          {/* 打撃・投手指標グリッド */}
-          <div>
+          {/* 3: 打撃成績グリッド */}
+          <motion.div className="px-5" variants={fadeUp} initial="hidden" animate="visible" {...stagger(3)}>
             <p className="text-slate-400 text-[10px] font-semibold uppercase tracking-wider mb-2">打撃成績</p>
             <div className="grid grid-cols-3 gap-2">
-              <MiniCard label="打率" value={teamStats.avg.toFixed(3).replace(/^0/, "")} />
+              <MiniCard label="打率"   value={teamStats.avg.toFixed(3).replace(/^0/, "")} />
               <MiniCard label="本塁打" value={`${teamStats.homeRuns}`} sub="本" />
-              <MiniCard label="盗塁" value={`${teamStats.stolenBases}`} sub="個" />
+              <MiniCard label="盗塁"   value={`${teamStats.stolenBases}`} sub="個" />
             </div>
-          </div>
+          </motion.div>
 
-          <div>
+          {/* 4: 投手成績グリッド */}
+          <motion.div className="px-5" variants={fadeUp} initial="hidden" animate="visible" {...stagger(4)}>
             <p className="text-slate-400 text-[10px] font-semibold uppercase tracking-wider mb-2">投手成績</p>
             <div className="grid grid-cols-2 gap-2">
               <MiniCard label="防御率" value={teamStats.era.toFixed(2)} />
-              <MiniCard label="失点" value={`${teamStats.runsAllowed}`} sub="点" />
+              <MiniCard label="失点"   value={`${teamStats.runsAllowed}`} sub="点" />
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </>
       ) : (
         <div className="px-5">
           <p className="text-slate-400 text-sm text-center py-6">2026年度のデータがありません</p>
         </div>
       )}
 
-      {/* フライ・ゴロ比率 */}
-      <div className="px-5">
+      {/* 5: フライ・ゴロ比率 */}
+      <motion.div className="px-5" variants={fadeUp} initial="hidden" animate="visible" {...stagger(5)}>
         <ContactChart player={teamAggregate} />
-      </div>
+      </motion.div>
     </div>
   );
 }
