@@ -6,9 +6,10 @@ import type { PitcherStats, TeamSeasonStats } from "@/app/actions";
 import CompareDashboard from "@/components/CompareDashboard";
 import SalaryDashboard from "@/components/SalaryDashboard";
 import MilestoneDashboard from "@/components/MilestoneDashboard";
+import SwotDashboard from "@/components/SwotDashboard";
 import { ChevronRight } from "lucide-react";
 
-type SubView = null | "compare" | "salary" | "milestone";
+type SubView = null | "compare" | "salary" | "milestone" | "swot";
 
 interface ClubhouseDashboardProps {
   players: PlayerStats[];
@@ -38,6 +39,13 @@ const MENU_ITEMS = [
     subtitle: "スタッツから年俸を自動計算",
     accent: "#059669",
   },
+  {
+    id: "swot" as const,
+    emoji: "👔",
+    title: "グニコンサル診断",
+    subtitle: "SWOT分析レポート（お遊び機能）",
+    accent: "#0f172a",
+  },
 ];
 
 export default function ClubhouseDashboard({ players, pitchers, teamStats }: ClubhouseDashboardProps) {
@@ -64,6 +72,14 @@ export default function ClubhouseDashboard({ players, pitchers, teamStats }: Clu
       <div>
         <BackBar label="💰 査定・推定年俸" onBack={() => setSubView(null)} />
         <SalaryDashboard players={players} pitchers={pitchers} />
+      </div>
+    );
+  }
+  if (subView === "swot") {
+    return (
+      <div>
+        <BackBar label="👔 グニコンサル診断" onBack={() => setSubView(null)} />
+        <SwotDashboard players={players} />
       </div>
     );
   }
