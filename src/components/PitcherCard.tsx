@@ -25,6 +25,17 @@ export default function PitcherCard({ pitcher }: { pitcher: PitcherStats }) {
   return (
     <div className="px-5 flex flex-col gap-4">
 
+      {/* ── ヘッダー行 ── */}
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-full bg-[#1e3a5f]/10 flex items-center justify-center text-xl">
+          🏟️
+        </div>
+        <div>
+          <p className="text-slate-400 text-[10px] font-semibold uppercase tracking-wider">Pitching Stats</p>
+          <p className="text-slate-700 text-sm font-bold">{pitcher.games}試合登板</p>
+        </div>
+      </div>
+
       {/* ── ブロック1: 防御率（ERA）のみ ── */}
       <div className="bg-gradient-to-r from-[#1e3a5f] to-[#2a5298] rounded-2xl p-5">
         <p className="text-white/60 text-xs font-semibold uppercase tracking-wider mb-1">
@@ -33,7 +44,6 @@ export default function PitcherCard({ pitcher }: { pitcher: PitcherStats }) {
         <p className="text-white text-6xl font-black leading-none">
           {pitcher.era.toFixed(2)}
         </p>
-        <p className="text-white/40 text-xs mt-2">🏟️ Pitching Stats — {pitcher.games}試合登板</p>
       </div>
 
       {/* ── ブロック2: 試合数・投球回・勝敗・勝率 ── */}
