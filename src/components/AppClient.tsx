@@ -62,7 +62,7 @@ export default function AppClient({ players, teamStats, pitchers }: AppClientPro
           />
         )}
         {activeTab === "clubhouse" && (
-          <ClubhouseDashboard players={players} pitchers={pitchers} />
+          <ClubhouseDashboard players={players} pitchers={pitchers} teamStats={teamStats} />
         )}
       </main>
 

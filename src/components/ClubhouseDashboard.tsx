@@ -2,25 +2,34 @@
 
 import { useState } from "react";
 import type { PlayerStats } from "@/types";
-import type { PitcherStats } from "@/app/actions";
+import type { PitcherStats, TeamSeasonStats } from "@/app/actions";
 import CompareDashboard from "@/components/CompareDashboard";
 import SalaryDashboard from "@/components/SalaryDashboard";
+import MilestoneDashboard from "@/components/MilestoneDashboard";
 import { ChevronRight } from "lucide-react";
 
-type SubView = null | "compare" | "salary";
+type SubView = null | "compare" | "salary" | "milestone";
 
 interface ClubhouseDashboardProps {
   players: PlayerStats[];
   pitchers: PitcherStats[];
+  teamStats: TeamSeasonStats | null;
 }
 
 const MENU_ITEMS = [
+  {
+    id: "milestone" as const,
+    emoji: "🏆",
+    title: "チームマイルストーン",
+    subtitle: "記録への道・目標達成状況",
+    accent: "#1e3a5f",
+  },
   {
     id: "compare" as const,
     emoji: "⚖️",
     title: "選手比較",
     subtitle: "2人の選手をVSモードで比較",
-    accent: "#1e3a5f",
+    accent: "#7c3aed",
   },
   {
     id: "salary" as const,
@@ -31,10 +40,17 @@ const MENU_ITEMS = [
   },
 ];
 
-export default function ClubhouseDashboard({ players, pitchers }: ClubhouseDashboardProps) {
+export default function ClubhouseDashboard({ players, pitchers, teamStats }: ClubhouseDashboardProps) {
   const [subView, setSubView] = useState<SubView>(null);
 
-  // ── サブビュー表示 ──
+  if (subView === "milestone") {
+    return (
+      <div>
+        <BackBar label="🏆 チームマイルストーン" onBack={() => setSubView(null)} />
+        <MilestoneDashboard teamStats={teamStats} />
+      </div>
+    );
+  }
   if (subView === "compare") {
     return (
       <div>
@@ -52,10 +68,8 @@ export default function ClubhouseDashboard({ players, pitchers }: ClubhouseDashb
     );
   }
 
-  // ── メインメニュー ──
   return (
     <div className="flex flex-col gap-5 px-5 py-4 pb-8">
-      {/* ヘッダー */}
       <div>
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1e3a5f]/10 text-[#1e3a5f] text-xs mb-3 border border-[#1e3a5f]/20">
           <span>🏠</span><span>クラブハウス</span>
@@ -64,7 +78,6 @@ export default function ClubhouseDashboard({ players, pitchers }: ClubhouseDashb
         <p className="text-slate-400 text-sm mt-1">Osaka Goonies — 選手メニュー</p>
       </div>
 
-      {/* メニューカード */}
       <div className="flex flex-col gap-3">
         {MENU_ITEMS.map((item) => (
           <button
@@ -72,19 +85,16 @@ export default function ClubhouseDashboard({ players, pitchers }: ClubhouseDashb
             onClick={() => setSubView(item.id)}
             className="w-full bg-white border border-slate-200 shadow-sm rounded-2xl p-5 flex items-center gap-4 text-left active:scale-[0.98] transition-transform hover:shadow-md"
           >
-            {/* アイコン */}
             <div
               className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shrink-0"
               style={{ background: `${item.accent}15` }}
             >
               {item.emoji}
             </div>
-            {/* テキスト */}
             <div className="flex-1 min-w-0">
               <p className="font-black text-slate-900 text-base">{item.title}</p>
               <p className="text-slate-400 text-xs mt-0.5">{item.subtitle}</p>
             </div>
-            {/* 矢印 */}
             <ChevronRight size={18} className="text-slate-300 shrink-0" />
           </button>
         ))}
@@ -93,7 +103,6 @@ export default function ClubhouseDashboard({ players, pitchers }: ClubhouseDashb
   );
 }
 
-// バックバー
 function BackBar({ label, onBack }: { label: string; onBack: () => void }) {
   return (
     <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-100 bg-white/80">
