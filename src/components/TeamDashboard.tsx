@@ -1,14 +1,6 @@
 "use client";
 
 import type { PlayerStats } from "@/types";
-import {
-  RadarChart,
-  Radar,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  ResponsiveContainer,
-} from "recharts";
 import ContactChart from "@/components/ContactChart";
 import { Users, Crosshair, Zap, Trophy, Wind } from "lucide-react";
 
@@ -48,17 +40,6 @@ export default function TeamDashboard({ players }: TeamDashboardProps) {
   const teamAvg        = players.reduce((s, p) => s + p.avg, 0) / players.length;
   const totalPA        = players.reduce((s, p) => s + p.plateAppearances, 0);
 
-  // ── チームレーダー（各指標の平均） ──
-  const avgOf = (fn: (p: PlayerStats) => number) =>
-    Math.round(players.reduce((s, p) => s + fn(p), 0) / players.length);
-
-  const radarData = [
-    { subject: "ミート",   value: avgOf(p => p.meet)   },
-    { subject: "パワー",   value: avgOf(p => p.power)  },
-    { subject: "走力",     value: avgOf(p => p.speed)  },
-    { subject: "選球眼",   value: avgOf(p => p.eye)    },
-    { subject: "勝負強さ", value: avgOf(p => p.clutch) },
-  ];
 
   // ── チーム合算のContactChart用ダミーオブジェクト ──
   const teamAggregate = {
@@ -88,43 +69,6 @@ export default function TeamDashboard({ players }: TeamDashboardProps) {
           <StatCard label="総本塁打" value={`${totalHR}`} sub="チーム合計" icon={<Zap size={28} />} />
           <StatCard label="総打点" value={`${totalRBI}`} sub="チーム合計" icon={<Trophy size={28} />} />
           <StatCard label="総盗塁" value={`${totalSB}`} sub="チーム合計" icon={<Wind size={28} />} />
-        </div>
-      </div>
-
-      {/* チームレーダーチャート */}
-      <div className="px-5">
-        <h2 className="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-3">Team Radar (平均値)</h2>
-        <div className="bg-white border border-slate-200 shadow-sm rounded-2xl p-4">
-          <div className="h-56">
-            <ResponsiveContainer width="100%" height="100%">
-              <RadarChart data={radarData} cx="50%" cy="50%">
-                <PolarGrid stroke="rgba(16,185,129,0.20)" />
-                <PolarAngleAxis
-                  dataKey="subject"
-                  tick={{ fill: "#64748b", fontSize: 11, fontWeight: 600 }}
-                />
-                <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
-                <Radar
-                  name="チーム平均"
-                  dataKey="value"
-                  stroke="#10b981"
-                  fill="#10b981"
-                  fillOpacity={0.22}
-                  strokeWidth={2}
-                  dot={{ fill: "#10b981", r: 3 }}
-                />
-              </RadarChart>
-            </ResponsiveContainer>
-          </div>
-          {/* 各指標の数値 */}
-          <div className="grid grid-cols-5 gap-1 mt-2">
-            {radarData.map((d) => (
-              <div key={d.subject} className="flex flex-col items-center">
-                <span className="text-slate-400 text-[10px]">{d.subject}</span>
-                <span className="text-[#1e3a5f] font-black text-sm">{d.value}</span>
-              </div>
-            ))}
-          </div>
         </div>
       </div>
 
