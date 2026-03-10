@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 import type { PlayerStats } from "@/types";
 import type { PitcherStats, TeamSeasonStats, TeamHistory } from "@/app/actions";
 import CompareDashboard from "@/components/CompareDashboard";
@@ -49,6 +50,20 @@ const MENU_ITEMS = [
   },
 ];
 
+// ── アニメーション設定 ──────────────────────────────────────
+const fadeUp = {
+  hidden: { opacity: 0, y: 16 },
+  visible: { opacity: 1, y: 0 },
+};
+function stagger(i: number) {
+  return {
+    variants: fadeUp,
+    initial: "hidden",
+    animate: "visible",
+    transition: { duration: 0.4, ease: "easeOut", delay: i * 0.08 } as any
+  };
+}
+
 export default function ClubhouseDashboard({ players, pitchers, teamStats, teamHistory }: ClubhouseDashboardProps) {
   const [subView, setSubView] = useState<SubView>(null);
 
@@ -87,18 +102,19 @@ export default function ClubhouseDashboard({ players, pitchers, teamStats, teamH
 
   return (
     <div className="flex flex-col gap-5 px-5 py-4 pb-8">
-      <div>
+      <motion.div {...stagger(0)}>
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1e3a5f]/10 text-[#1e3a5f] text-xs mb-3 border border-[#1e3a5f]/20">
           <span>🏠</span><span>クラブハウス</span>
         </div>
         <h1 className="text-3xl font-black text-slate-900 tracking-tight">クラブハウス</h1>
         <p className="text-slate-400 text-sm mt-1">Osaka Goonies — 選手メニュー</p>
-      </div>
+      </motion.div>
 
       <div className="flex flex-col gap-3">
-        {MENU_ITEMS.map((item) => (
-          <button
+        {MENU_ITEMS.map((item, i) => (
+          <motion.button
             key={item.id}
+            {...stagger(i + 1)}
             onClick={() => setSubView(item.id)}
             className="w-full bg-white border border-slate-200 shadow-sm rounded-2xl p-5 flex items-center gap-4 text-left active:scale-[0.98] transition-transform hover:shadow-md"
           >
@@ -113,7 +129,7 @@ export default function ClubhouseDashboard({ players, pitchers, teamStats, teamH
               <p className="text-slate-400 text-xs mt-0.5">{item.subtitle}</p>
             </div>
             <ChevronRight size={18} className="text-slate-300 shrink-0" />
-          </button>
+          </motion.button>
         ))}
       </div>
     </div>
