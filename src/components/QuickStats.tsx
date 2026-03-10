@@ -1,7 +1,7 @@
 "use client";
 
 import type { PlayerStats } from "@/types";
-import { TrendingUp, Target, Zap, Wind, Trophy } from "lucide-react";
+import { TrendingUp, Target, Zap, Wind, Trophy, Star } from "lucide-react";
 
 interface StatCardProps {
   label: string;
@@ -38,6 +38,14 @@ export default function QuickStats({ player }: QuickStatsProps) {
       valueColor: "text-[#1e3a5f]",
     },
     {
+      label: "打点",
+      value: `${player.rbi}`,
+      sub: `${player.games.length}試合`,
+      icon: <Star size={28} />,
+      iconColor: "text-[#dc2626]",
+      valueColor: "text-[#dc2626]",
+    },
+    {
       label: "OPS",
       value: player.ops.toFixed(3).replace(/^0/, ""),
       sub: `OBP ${player.obp.toFixed(3).replace(/^0/, "")} + SLG ${player.slg.toFixed(3).replace(/^0/, "")}`,
@@ -56,7 +64,7 @@ export default function QuickStats({ player }: QuickStatsProps) {
     {
       label: "盗塁",
       value: `${player.stolenBases}`,
-      sub: `打点 ${player.rbi}`,
+      sub: `四球 ${player.walks}`,
       icon: <Wind size={28} />,
       iconColor: "text-slate-400",
       valueColor: "text-slate-700",
