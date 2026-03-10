@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { PlayerStats } from "@/types";
-import type { TeamSeasonStats } from "@/app/actions";
+import type { TeamSeasonStats, PitcherStats } from "@/app/actions";
 import BottomNav from "@/components/BottomNav";
 import TeamDashboard from "@/components/TeamDashboard";
 import RankingTab from "@/components/RankingTab";
@@ -14,9 +14,10 @@ type Tab = "team" | "ranking" | "player";
 interface AppClientProps {
   players: PlayerStats[];
   teamStats: TeamSeasonStats | null;
+  pitchers: PitcherStats[];
 }
 
-export default function AppClient({ players, teamStats }: AppClientProps) {
+export default function AppClient({ players, teamStats, pitchers }: AppClientProps) {
   const [activeTab, setActiveTab] = useState<Tab>("team");
   const [selected, setSelected] = useState<PlayerStats>(players[0]);
 
@@ -55,6 +56,7 @@ export default function AppClient({ players, teamStats }: AppClientProps) {
             players={players}
             selected={selected}
             onSelect={setSelected}
+            pitchers={pitchers}
           />
         )}
       </main>

@@ -72,3 +72,67 @@ export async function getTeamStats(year = "2026"): Promise<TeamSeasonStats | nul
 
   return null;
 }
+
+// ── 投手成績 ──────────────────────────────────────────────────
+export interface PitcherStats {
+  number: string;
+  name: string;
+  games: number;
+  wins: number;
+  losses: number;
+  saves: number;
+  winRate: number;
+  era: number;
+  innings: string;      // 例: "11回", "5回2/3"
+  runsAllowed: number;
+  earnedRuns: number;
+  completeGames: number;
+  shutouts: number;
+  hitsAllowed: number;
+  homeRunsAllowed: number;
+  strikeouts: number;
+  walksHBP: number;
+}
+
+const PITCHING_CSV_URL =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vRMhlYtPBRM_4PMS6d8_UjP0n_OfFS9YzJWzvc6XdPAthLaCGt17A1bsUAqjPSKj8S9NTL8up8ZZea2/pub?gid=1072669241&single=true&output=csv";
+
+export async function getPitchingData(): Promise<PitcherStats[]> {
+  const res = await fetch(PITCHING_CSV_URL, { next: { revalidate: 3600 } });
+  const text = await res.text();
+
+  const rows = text.trim().split(/\r?\n/);
+  const header = rows[0].split(",");
+  const col = (name: string) => header.indexOf(name);
+
+  const results: PitcherStats[] = [];
+
+  for (const row of rows.slice(1)) {
+    const cells = row.split(",");
+    const games = Number(cells[col("試合数")]);
+    if (games < 1) continue;
+    if (!cells[col("選手名")]?.trim()) continue;
+
+    results.push({
+      number:           cells[col("#")] ?? "",
+      name:             cells[col("選手名")].trim(),
+      games,
+      wins:             Number(cells[col("勝")]),
+      losses:           Number(cells[col("敗")]),
+      saves:            Number(cells[col("セーブ")]),
+      winRate:          Number(cells[col("勝率")]),
+      era:              Number(cells[col("防御率")]),
+      innings:          cells[col("投球回")] ?? "",
+      runsAllowed:      Number(cells[col("失点")]),
+      earnedRuns:       Number(cells[col("自責点")]),
+      completeGames:    Number(cells[col("完投")]),
+      shutouts:         Number(cells[col("完封")]),
+      hitsAllowed:      Number(cells[col("被安打")]),
+      homeRunsAllowed:  Number(cells[col("被本塁打")]),
+      strikeouts:       Number(cells[col("奪三振")]),
+      walksHBP:         Number(cells[col("与四死球")]),
+    });
+  }
+
+  return results;
+}
