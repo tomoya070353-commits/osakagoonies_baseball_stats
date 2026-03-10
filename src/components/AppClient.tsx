@@ -7,10 +7,10 @@ import BottomNav from "@/components/BottomNav";
 import TeamDashboard from "@/components/TeamDashboard";
 import RankingTab from "@/components/RankingTab";
 import PlayerTab from "@/components/PlayerTab";
-import CompareDashboard from "@/components/CompareDashboard";
+import ClubhouseDashboard from "@/components/ClubhouseDashboard";
 import { BarChart2 } from "lucide-react";
 
-type Tab = "team" | "ranking" | "player" | "compare";
+type Tab = "team" | "ranking" | "player" | "clubhouse";
 
 interface AppClientProps {
   players: PlayerStats[];
@@ -28,10 +28,10 @@ export default function AppClient({ players, teamStats, pitchers }: AppClientPro
   };
 
   const TAB_TITLES: Record<Tab, string> = {
-    team:    "チームダッシュボード",
-    ranking: "ランキング",
-    player:  "個人成績",
-    compare: "選手比較 VSモード",
+    team:      "チームダッシュボード",
+    ranking:   "ランキング",
+    player:    "個人成績",
+    clubhouse: "クラブハウス",
   };
 
   return (
@@ -61,8 +61,8 @@ export default function AppClient({ players, teamStats, pitchers }: AppClientPro
             pitchers={pitchers}
           />
         )}
-        {activeTab === "compare" && (
-          <CompareDashboard players={players} />
+        {activeTab === "clubhouse" && (
+          <ClubhouseDashboard players={players} pitchers={pitchers} />
         )}
       </main>
 

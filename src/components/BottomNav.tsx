@@ -1,6 +1,6 @@
 "use client";
 
-type Tab = "team" | "ranking" | "player" | "compare";
+type Tab = "team" | "ranking" | "player" | "clubhouse";
 
 interface BottomNavProps {
   activeTab: Tab;
@@ -8,10 +8,10 @@ interface BottomNavProps {
 }
 
 const TABS: { id: Tab; label: string; emoji: string }[] = [
-  { id: "team",    label: "チーム",     emoji: "⚾" },
-  { id: "ranking", label: "ランキング", emoji: "👑" },
-  { id: "player",  label: "個人",       emoji: "👤" },
-  { id: "compare", label: "比較",       emoji: "⚔️" },
+  { id: "team",      label: "チーム",       emoji: "⚾" },
+  { id: "ranking",   label: "ランキング",   emoji: "👑" },
+  { id: "player",    label: "個人",         emoji: "👤" },
+  { id: "clubhouse", label: "クラブハウス", emoji: "🏠" },
 ];
 
 export default function BottomNav({ activeTab, onChange }: BottomNavProps) {
