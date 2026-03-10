@@ -6,7 +6,6 @@ import QuickStats from "@/components/QuickStats";
 import PlayerRadar from "@/components/PlayerRadar";
 import DirectionChart from "@/components/DirectionChart";
 import ContactChart from "@/components/ContactChart";
-import PlayerSheet from "@/components/PlayerSheet";
 
 interface PlayerTabProps {
   players: PlayerStats[];
@@ -17,7 +16,12 @@ interface PlayerTabProps {
 export default function PlayerTab({ players, selected, onSelect }: PlayerTabProps) {
   return (
     <div className="flex flex-col gap-6 py-2 pb-8">
-      <PlayerHeader player={selected} />
+      {/* 選手名タップ → ドロップダウン（PlayerHeader内） */}
+      <PlayerHeader
+        player={selected}
+        players={players}
+        onSelect={onSelect}
+      />
       <QuickStats player={selected} />
       <div className="px-5 grid grid-cols-1 md:grid-cols-2 gap-5">
         <PlayerRadar player={selected} />
@@ -25,13 +29,6 @@ export default function PlayerTab({ players, selected, onSelect }: PlayerTabProp
         <ContactChart player={selected} />
       </div>
       <div className="h-4" />
-
-      {/* 選手選択ボタン（個人タブ内のみ） */}
-      <PlayerSheet
-        players={players}
-        selectedPlayer={selected}
-        onSelect={onSelect}
-      />
     </div>
   );
 }
