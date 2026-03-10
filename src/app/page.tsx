@@ -29,31 +29,31 @@ export default function Home() {
 
   if (loading) {
     return (
-      <div className="min-h-dvh flex flex-col items-center justify-center gap-4">
-        <Loader2 size={36} className="text-emerald-400 animate-spin" />
-        <p className="text-white/40 text-sm">データを読み込み中...</p>
+      <div className="min-h-dvh flex flex-col items-center justify-center gap-4 bg-slate-50">
+        <Loader2 size={36} className="text-[#1e3a5f] animate-spin" />
+        <p className="text-slate-400 text-sm">データを読み込み中...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-dvh flex flex-col items-center justify-center gap-3 px-6 text-center">
-        <p className="text-red-400 font-bold">エラー</p>
-        <p className="text-white/40 text-sm">{error}</p>
+      <div className="min-h-dvh flex flex-col items-center justify-center gap-3 px-6 text-center bg-slate-50">
+        <p className="text-red-600 font-bold">エラー</p>
+        <p className="text-slate-400 text-sm">{error}</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-dvh bg-[#080e14] pb-28">
+    <div className="min-h-dvh bg-slate-50 pb-28">
       {/* トップナビゲーション */}
-      <header className="sticky top-0 z-30 flex items-center justify-between px-5 py-3 bg-[#080e14]/80 backdrop-blur-lg border-b border-white/5">
+      <header className="sticky top-0 z-30 flex items-center justify-between px-5 py-3 bg-white/90 backdrop-blur-lg border-b border-slate-200 shadow-sm">
         <div className="flex items-center gap-2">
-          <BarChart2 size={18} className="text-emerald-400" />
-          <span className="text-sm font-bold text-white tracking-tight">野球成績ダッシュボード</span>
+          <BarChart2 size={18} className="text-[#1e3a5f]" />
+          <span className="text-sm font-bold text-[#1e3a5f] tracking-tight">野球成績ダッシュボード</span>
         </div>
-        <span className="text-white/30 text-xs">{players.length}名登録中</span>
+        <span className="text-slate-400 text-xs">{players.length}名登録中</span>
       </header>
 
       {/* メインコンテンツ */}
@@ -65,7 +65,7 @@ export default function Home() {
           {/* Quick Stats */}
           <QuickStats player={selected} />
 
-          {/* レーダー + チャート グリッド（md以上で2列） */}
+          {/* レーダー + チャート グリッド */}
           <div className="px-5 grid grid-cols-1 md:grid-cols-2 gap-5">
             <PlayerRadar player={selected} />
             <DirectionChart player={selected} />
@@ -76,7 +76,7 @@ export default function Home() {
           <div className="h-4" />
         </main>
       ) : (
-        <div className="flex flex-col items-center justify-center h-[60vh] text-white/30 gap-2">
+        <div className="flex flex-col items-center justify-center h-[60vh] text-slate-300 gap-2">
           <BarChart2 size={40} />
           <p className="text-sm">下のボタンから選手を選択してください</p>
         </div>

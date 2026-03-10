@@ -14,7 +14,7 @@ export default function PlayerSheet({ players, selectedPlayer, onSelect }: Playe
   return (
     <Drawer.Root>
       <Drawer.Trigger asChild>
-        <button className="fixed bottom-6 left-0 right-0 mx-auto w-[calc(100%-2rem)] max-w-sm z-50 flex items-center justify-between px-5 py-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-500 text-white font-bold shadow-2xl shadow-emerald-900/50 active:scale-95 transition-transform">
+        <button className="fixed bottom-6 left-0 right-0 mx-auto w-[calc(100%-2rem)] max-w-sm z-50 flex items-center justify-between px-5 py-4 rounded-2xl bg-gradient-to-r from-[#1e3a5f] to-[#2a5298] text-white font-bold shadow-2xl shadow-[#1e3a5f]/30 active:scale-95 transition-transform">
           <div className="flex items-center gap-2">
             <Users size={20} />
             <span className="text-base">選手を選択</span>
@@ -26,20 +26,20 @@ export default function PlayerSheet({ players, selectedPlayer, onSelect }: Playe
       </Drawer.Trigger>
 
       <Drawer.Portal>
-        <Drawer.Overlay className="fixed inset-0 bg-black/60 z-40" />
+        <Drawer.Overlay className="fixed inset-0 bg-black/30 z-40" />
         <Drawer.Content className="fixed bottom-0 left-0 right-0 z-50 outline-none">
-          <div className="bg-[#0f1923] rounded-t-3xl border-t border-white/10 max-h-[80vh] overflow-hidden flex flex-col">
+          <div className="bg-white rounded-t-3xl border-t border-slate-200 max-h-[80vh] overflow-hidden flex flex-col shadow-2xl">
             {/* ハンドル */}
             <div className="flex justify-center pt-3 pb-1">
-              <div className="w-10 h-1.5 rounded-full bg-white/20" />
+              <div className="w-10 h-1.5 rounded-full bg-slate-300" />
             </div>
 
             {/* タイトル */}
-            <div className="px-5 py-3 border-b border-white/10">
-              <Drawer.Title className="text-white font-bold text-lg">
+            <div className="px-5 py-3 border-b border-slate-100">
+              <Drawer.Title className="text-slate-900 font-bold text-lg">
                 選手一覧
               </Drawer.Title>
-              <p className="text-white/40 text-xs mt-0.5">{players.length}名</p>
+              <p className="text-slate-400 text-xs mt-0.5">{players.length}名</p>
             </div>
 
             {/* 選手リスト */}
@@ -53,35 +53,35 @@ export default function PlayerSheet({ players, selectedPlayer, onSelect }: Playe
                   >
                     <button
                       onClick={() => onSelect(player)}
-                      className={`w-full flex items-center justify-between px-5 py-3.5 transition-colors active:bg-white/5 ${
-                        isSelected ? "bg-emerald-500/15" : "hover:bg-white/5"
+                      className={`w-full flex items-center justify-between px-5 py-3.5 transition-colors active:bg-slate-50 ${
+                        isSelected ? "bg-[#1e3a5f]/8" : "hover:bg-slate-50"
                       }`}
                     >
                       <div className="flex items-center gap-4">
                         {/* アバター */}
                         <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold ${
                           isSelected
-                            ? "bg-emerald-500 text-white"
-                            : "bg-white/10 text-white/60"
+                            ? "bg-[#1e3a5f] text-white"
+                            : "bg-slate-100 text-slate-500"
                         }`}>
                           {player.name.charAt(0)}
                         </div>
                         <div className="text-left">
-                          <p className={`font-semibold ${isSelected ? "text-emerald-400" : "text-white"}`}>
+                          <p className={`font-semibold ${isSelected ? "text-[#1e3a5f]" : "text-slate-800"}`}>
                             {player.name}
                           </p>
-                          <p className="text-white/40 text-xs">
+                          <p className="text-slate-400 text-xs">
                             {player.mostFrequentPosition} | {player.games.length}試合
                           </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="text-white/60 text-sm font-mono">
+                        <span className="text-slate-500 text-sm font-mono">
                           {player.avg.toFixed(3)}
                         </span>
                         <ChevronRight
                           size={16}
-                          className={isSelected ? "text-emerald-400" : "text-white/20"}
+                          className={isSelected ? "text-[#1e3a5f]" : "text-slate-300"}
                         />
                       </div>
                     </button>

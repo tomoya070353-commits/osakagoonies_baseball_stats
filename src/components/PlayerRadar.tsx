@@ -16,12 +16,12 @@ interface PlayerRadarProps {
 
 /* ── A〜F グレード変換 ───────────────────────────── */
 function toGrade(score: number): { grade: string; color: string; bg: string } {
-  if (score >= 80) return { grade: "A", color: "#fbbf24", bg: "rgba(251,191,36,0.15)"  };
-  if (score >= 60) return { grade: "B", color: "#10b981", bg: "rgba(16,185,129,0.12)"  };
-  if (score >= 40) return { grade: "C", color: "#60a5fa", bg: "rgba(96,165,250,0.12)"  };
-  if (score >= 20) return { grade: "D", color: "#a78bfa", bg: "rgba(167,139,250,0.12)" };
-  if (score >= 1)  return { grade: "E", color: "#fb923c", bg: "rgba(249,115,22,0.12)"  };
-  return               { grade: "F", color: "#f87171", bg: "rgba(248,113,113,0.12)"  };
+  if (score >= 80) return { grade: "A", color: "#1d4ed8", bg: "rgba(29,78,216,0.08)"  };  // 青（Blue-700）
+  if (score >= 60) return { grade: "B", color: "#0891b2", bg: "rgba(8,145,178,0.08)"  };  // シアン
+  if (score >= 40) return { grade: "C", color: "#059669", bg: "rgba(5,150,105,0.08)"  };  // エメラルド
+  if (score >= 20) return { grade: "D", color: "#d97706", bg: "rgba(217,119,6,0.08)" };   // アンバー
+  if (score >= 1)  return { grade: "E", color: "#ea580c", bg: "rgba(234,88,12,0.08)"  };  // オレンジ
+  return               { grade: "F", color: "#dc2626", bg: "rgba(220,38,38,0.08)"  };    // 赤
 }
 
 /* 弾道（1〜4）→ 表示用 */
@@ -50,16 +50,17 @@ export default function PlayerRadar({ player }: PlayerRadarProps) {
 
   const trajLabel = TRAJ_LABELS[player.trajectory] ?? "—";
   const trajColor =
-    player.trajectory === 4 ? "#f87171" :
-    player.trajectory === 3 ? "#a78bfa" :
-    player.trajectory === 2 ? "#60a5fa" : "#10b981";
+    player.trajectory === 4 ? "#1d4ed8" :   // 4=大型アーク → 青
+    player.trajectory === 3 ? "#0891b2" :   // 3=フライ打者 → シアン
+    player.trajectory === 2 ? "#d97706" :   // 2=中間弾道  → アンバー
+    "#dc2626";                               // 1=ゴロ打者  → 赤
 
   return (
     <div>
-      <h2 className="text-white/40 text-xs font-semibold uppercase tracking-wider mb-3">
+      <h2 className="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-3">
         Player Radar
       </h2>
-      <div className="rounded-2xl bg-white/5 border border-white/10 p-4">
+      <div className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
         <div className="flex gap-3 items-start">
 
           {/* ── 左: ステータス評価テーブル ── */}
@@ -67,12 +68,12 @@ export default function PlayerRadar({ player }: PlayerRadarProps) {
 
             {/* 弾道（数値表示） */}
             <div className="flex items-center justify-between rounded-xl px-3 py-2"
-              style={{ background: `${trajColor}22` }}>
-              <span className="text-white/60 text-xs font-medium">弾道</span>
+              style={{ background: `${trajColor}12` }}>
+              <span className="text-slate-500 text-xs font-medium">弾道</span>
               <div className="flex items-center gap-1.5">
                 <span className="text-xs" style={{ color: trajColor }}>{trajLabel}</span>
                 <span className="font-black text-sm w-6 h-6 rounded-lg flex items-center justify-center"
-                  style={{ color: trajColor, background: `${trajColor}33` }}>
+                  style={{ color: trajColor, background: `${trajColor}20` }}>
                   {player.trajectory}
                 </span>
               </div>
@@ -85,10 +86,10 @@ export default function PlayerRadar({ player }: PlayerRadarProps) {
                 <div key={s.label}
                   className="flex items-center justify-between rounded-xl px-3 py-2"
                   style={{ background: g.bg }}>
-                  <span className="text-white/60 text-xs font-medium">{s.label}</span>
+                  <span className="text-slate-500 text-xs font-medium">{s.label}</span>
                   <div className="flex items-center gap-2">
                     {/* スコアバー */}
-                    <div className="w-16 h-1.5 rounded-full bg-white/10">
+                    <div className="w-16 h-1.5 rounded-full bg-slate-100">
                       <div
                         className="h-full rounded-full transition-all duration-700"
                         style={{ width: `${s.score}%`, background: g.color }}
@@ -97,7 +98,7 @@ export default function PlayerRadar({ player }: PlayerRadarProps) {
                     {/* グレードバッジ */}
                     <span
                       className="font-black text-base w-7 h-7 rounded-lg flex items-center justify-center"
-                      style={{ color: g.color, background: `${g.color}22` }}>
+                      style={{ color: g.color, background: `${g.color}18` }}>
                       {g.grade}
                     </span>
                   </div>
@@ -110,10 +111,10 @@ export default function PlayerRadar({ player }: PlayerRadarProps) {
           <div className="flex-1 h-52">
             <ResponsiveContainer width="100%" height="100%">
               <RadarChart data={radarData} cx="50%" cy="50%">
-                <PolarGrid stroke="rgba(255,255,255,0.10)" />
+                <PolarGrid stroke="rgba(16,185,129,0.20)" />
                 <PolarAngleAxis
                   dataKey="subject"
-                  tick={{ fill: "rgba(255,255,255,0.50)", fontSize: 10, fontWeight: 600 }}
+                  tick={{ fill: "#64748b", fontSize: 10, fontWeight: 600 }}
                 />
                 <PolarRadiusAxis 
                   angle={30} 
@@ -126,7 +127,7 @@ export default function PlayerRadar({ player }: PlayerRadarProps) {
                   dataKey="value"
                   stroke="#10b981"
                   fill="#10b981"
-                  fillOpacity={0.25}
+                  fillOpacity={0.20}
                   strokeWidth={2}
                   dot={{ fill: "#10b981", r: 3 }}
                 />
