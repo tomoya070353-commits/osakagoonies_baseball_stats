@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { PlayerStats } from "@/types";
+import type { TeamSeasonStats } from "@/app/actions";
 import BottomNav from "@/components/BottomNav";
 import TeamDashboard from "@/components/TeamDashboard";
 import RankingTab from "@/components/RankingTab";
@@ -12,9 +13,10 @@ type Tab = "team" | "ranking" | "player";
 
 interface AppClientProps {
   players: PlayerStats[];
+  teamStats: TeamSeasonStats | null;
 }
 
-export default function AppClient({ players }: AppClientProps) {
+export default function AppClient({ players, teamStats }: AppClientProps) {
   const [activeTab, setActiveTab] = useState<Tab>("team");
   const [selected, setSelected] = useState<PlayerStats>(players[0]);
 
@@ -31,7 +33,6 @@ export default function AppClient({ players }: AppClientProps) {
 
   return (
     <div className="min-h-dvh bg-slate-50">
-      {/* トップナビゲーション */}
       <header className="sticky top-0 z-30 flex items-center justify-between px-5 py-3 bg-white/90 backdrop-blur-lg border-b border-slate-200 shadow-sm">
         <div className="flex items-center gap-2">
           <BarChart2 size={18} className="text-[#1e3a5f]" />
@@ -42,10 +43,9 @@ export default function AppClient({ players }: AppClientProps) {
         <span className="text-slate-400 text-xs">{players.length}名登録中</span>
       </header>
 
-      {/* メインコンテンツ（タブで切り替え） */}
       <main className="pb-20">
         {activeTab === "team" && (
-          <TeamDashboard players={players} />
+          <TeamDashboard players={players} teamStats={teamStats} />
         )}
         {activeTab === "ranking" && (
           <RankingTab players={players} onDrillDown={handleDrillDown} />
@@ -59,7 +59,6 @@ export default function AppClient({ players }: AppClientProps) {
         )}
       </main>
 
-      {/* ボトムナビ */}
       <BottomNav activeTab={activeTab} onChange={setActiveTab} />
     </div>
   );

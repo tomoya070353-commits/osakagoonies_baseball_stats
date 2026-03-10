@@ -1,10 +1,13 @@
 import { Suspense } from "react";
-import { getPlayersData } from "./actions";
+import { getPlayersData, getTeamStats } from "./actions";
 import AppClient from "@/components/AppClient";
 import { Loader2 } from "lucide-react";
 
 export default async function Home() {
-  const players = await getPlayersData();
+  const [players, teamStats] = await Promise.all([
+    getPlayersData(),
+    getTeamStats("2026"),
+  ]);
 
   return (
     <Suspense
@@ -15,7 +18,7 @@ export default async function Home() {
         </div>
       }
     >
-      <AppClient players={players} />
+      <AppClient players={players} teamStats={teamStats} />
     </Suspense>
   );
 }
