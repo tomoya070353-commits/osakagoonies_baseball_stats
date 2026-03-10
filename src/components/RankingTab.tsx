@@ -88,6 +88,7 @@ function RankingCard({
   onDrillDown: (player: PlayerStats) => void;
 }) {
   const sorted = [...players]
+    .filter((p) => !p.name.includes("助っ人"))
     .sort((a, b) => category.getValue(b) - category.getValue(a))
     .slice(0, 3);
 
