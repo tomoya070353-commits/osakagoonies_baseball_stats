@@ -55,7 +55,7 @@ export default function ClubhouseDashboard({ players, pitchers, teamStats }: Clu
     return (
       <div>
         <BackBar label="🏆 チームマイルストーン" onBack={() => setSubView(null)} />
-        <MilestoneDashboard teamStats={teamStats} />
+        <MilestoneDashboard teamStats={teamStats} pitchers={pitchers} />
       </div>
     );
   }
