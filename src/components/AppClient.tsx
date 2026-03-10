@@ -7,9 +7,10 @@ import BottomNav from "@/components/BottomNav";
 import TeamDashboard from "@/components/TeamDashboard";
 import RankingTab from "@/components/RankingTab";
 import PlayerTab from "@/components/PlayerTab";
+import CompareDashboard from "@/components/CompareDashboard";
 import { BarChart2 } from "lucide-react";
 
-type Tab = "team" | "ranking" | "player";
+type Tab = "team" | "ranking" | "player" | "compare";
 
 interface AppClientProps {
   players: PlayerStats[];
@@ -30,6 +31,7 @@ export default function AppClient({ players, teamStats, pitchers }: AppClientPro
     team:    "チームダッシュボード",
     ranking: "ランキング",
     player:  "個人成績",
+    compare: "選手比較 VSモード",
   };
 
   return (
@@ -58,6 +60,9 @@ export default function AppClient({ players, teamStats, pitchers }: AppClientPro
             onSelect={setSelected}
             pitchers={pitchers}
           />
+        )}
+        {activeTab === "compare" && (
+          <CompareDashboard players={players} />
         )}
       </main>
 
