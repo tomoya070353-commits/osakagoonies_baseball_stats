@@ -3,6 +3,7 @@
 import type { PlayerStats } from "@/types";
 import type { TeamSeasonStats } from "@/app/actions";
 import ContactChart from "@/components/ContactChart";
+import TeamLevelCard from "@/components/TeamLevelCard";
 import { Users } from "lucide-react";
 
 interface TeamDashboardProps {
@@ -94,6 +95,9 @@ export default function TeamDashboard({ players, teamStats }: TeamDashboardProps
 
   return (
     <div className="flex flex-col gap-5 py-4 pb-8">
+      {/* ── RPG レベルカード（最上部） ── */}
+      <TeamLevelCard teamStats={teamStats} />
+
       {/* ヘッダー */}
       <div className="px-5">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1e3a5f]/10 text-[#1e3a5f] text-xs mb-3 border border-[#1e3a5f]/20">
