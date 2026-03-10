@@ -121,7 +121,8 @@ interface CompareDashboardProps {
   players: PlayerStats[];
 }
 
-export default function CompareDashboard({ players }: CompareDashboardProps) {
+export default function CompareDashboard({ players: allPlayers }: CompareDashboardProps) {
+  const players = allPlayers.filter((p) => !p.name.includes("助っ人"));
   const [playerA, setPlayerA] = useState(players[0]);
   const [playerB, setPlayerB] = useState(players[1] ?? players[0]);
 
