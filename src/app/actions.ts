@@ -80,34 +80,60 @@ export async function getAllTeamStats(): Promise<TeamSeasonStats[]> {
   return results;
 }
 
+export interface RecordHolder {
+  value: number;
+  year: string;
+}
+
 export interface TeamHistory {
   current:    TeamSeasonStats | null;
   lastYear:   TeamSeasonStats | null;
-  record:     TeamSeasonStats | null; // 歴代最多得点の年
+  record:     TeamSeasonStats | null;
   allTime:    { wins: number; runs: number; homeRuns: number; stolenBases: number };
+  recordHolders: {
+    wins:        RecordHolder;
+    runs:        RecordHolder;
+    homeRuns:    RecordHolder;
+    stolenBases: RecordHolder;
+  };
 }
 
 export async function getTeamHistory(): Promise<TeamHistory> {
-  const all     = await getAllTeamStats();
-  const current = all.find((r) => r.year === "2026") ?? null;
+  const all      = await getAllTeamStats();
+  const current  = all.find((r) => r.year === "2026") ?? null;
   const lastYear = all.find((r) => r.year === "2025") ?? null;
 
-  // 歴代最高値（各指標の最大値）
-  const allTime = {
-    wins:        Math.max(...all.map((r) => r.wins),        0),
-    runs:        Math.max(...all.map((r) => r.runs),        0),
-    homeRuns:    Math.max(...all.map((r) => r.homeRuns),    0),
-    stolenBases: Math.max(...all.map((r) => r.stolenBases), 0),
+  // 各項目の歴代最高値と年度
+  function bestOf(key: keyof TeamSeasonStats): RecordHolder {
+    let best: TeamSeasonStats | null = null;
+    for (const r of all) {
+      if (!best || (r[key] as number) > (best[key] as number)) best = r;
+    }
+    return { value: best ? (best[key] as number) : 0, year: best?.year ?? "-" };
+  }
+
+  const recordHolders = {
+    wins:        bestOf("wins"),
+    runs:        bestOf("runs"),
+    homeRuns:    bestOf("homeRuns"),
+    stolenBases: bestOf("stolenBases"),
   };
 
-  // 歴代最多得点の年を record として返す（代表）
+  const allTime = {
+    wins:        recordHolders.wins.value,
+    runs:        recordHolders.runs.value,
+    homeRuns:    recordHolders.homeRuns.value,
+    stolenBases: recordHolders.stolenBases.value,
+  };
+
   const record = all.reduce<TeamSeasonStats | null>((best, r) => {
     if (!best || r.runs > best.runs) return r;
     return best;
   }, null);
 
-  return { current, lastYear, record, allTime };
+  return { current, lastYear, record, allTime, recordHolders };
 }
+
 
 
 // ── 投手成績 ──────────────────────────────────────────────────

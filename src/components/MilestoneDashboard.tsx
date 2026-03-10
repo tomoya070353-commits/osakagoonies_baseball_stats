@@ -1,6 +1,6 @@
 "use client";
 
-import type { TeamSeasonStats, PitcherStats, TeamHistory } from "@/app/actions";
+import type { TeamSeasonStats, PitcherStats, TeamHistory, RecordHolder } from "@/app/actions";
 
 interface MilestoneDashboardProps {
   teamStats: TeamSeasonStats | null;
@@ -8,56 +8,41 @@ interface MilestoneDashboardProps {
   teamHistory: TeamHistory;
 }
 
-// ── ティア計算ロジック ─────────────────────────────────────────
-function getNextTarget(current: number, step: number): number {
-  const tier = Math.floor(current / step);
-  return (tier + 1) * step;
-}
-function getTier(current: number, step: number): number {
-  return Math.floor(current / step) + 1;
-}
-function getPrevTarget(current: number, step: number): number {
-  return Math.floor(current / step) * step;
-}
-function getProgress(current: number, step: number): number {
-  const prev = getPrevTarget(current, step);
-  return Math.round(((current - prev) / step) * 100);
-}
-function isJustCleared(current: number, step: number): boolean {
-  return current > 0 && current % step === 0;
-}
+// ── ティア計算 ──────────────────────────────────────────────
+function getNextTarget(current: number, step: number) { return (Math.floor(current / step) + 1) * step; }
+function getTier(current: number, step: number)       { return Math.floor(current / step) + 1; }
+function getPrev(current: number, step: number)       { return Math.floor(current / step) * step; }
+function getPct(current: number, step: number)        { return Math.round(((current - getPrev(current, step)) / step) * 100); }
+function isCleared(current: number, step: number)     { return current > 0 && current % step === 0; }
 
-// ── 通常プログレスバー ─────────────────────────────────────────
-function ProgressBar({ pct, hot }: { pct: number; hot: boolean }) {
+// ── 通常プログレスバー ──────────────────────────────────────
+function Bar({ pct, hot }: { pct: number; hot: boolean }) {
   return (
     <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
-      <div
-        className={`h-full rounded-full transition-all duration-700 ${
-          pct >= 100 ? "bg-emerald-500" : hot ? "bg-[#dc2626] animate-pulse" : "bg-[#1e3a5f]"
-        }`}
-        style={{ width: `${Math.min(pct, 100)}%` }}
-      />
+      <div className={`h-full rounded-full transition-all duration-700 ${
+        pct >= 100 ? "bg-emerald-500" : hot ? "bg-[#dc2626] animate-pulse" : "bg-[#1e3a5f]"
+      }`} style={{ width: `${Math.min(pct, 100)}%` }} />
     </div>
   );
 }
 
-// ── 通常マイルストーンカード ──────────────────────────────────
-function MilestoneCard({ emoji, title, current, step, unit }: {
+// ── 通常マイルストーンカード ────────────────────────────────
+function TierCard({ emoji, title, current, step, unit }: {
   emoji: string; title: string; current: number; step: number; unit: string;
 }) {
   const target  = getNextTarget(current, step);
-  const prev    = getPrevTarget(current, step);
-  const pct     = getProgress(current, step);
+  const prev    = getPrev(current, step);
+  const pct     = getPct(current, step);
   const tier    = getTier(current, step);
   const hot     = pct >= 80;
-  const cleared = isJustCleared(current, step);
+  const cleared = isCleared(current, step);
   const remain  = target - current;
 
   return (
     <div className={`bg-white border rounded-2xl overflow-hidden shadow-sm ${hot ? "border-[#dc2626]/40" : "border-slate-200"}`}>
-      <div className={`flex items-center justify-between px-5 pt-5 pb-3 ${cleared ? "bg-emerald-50" : hot ? "bg-red-50/50" : ""}`}>
+      <div className={`flex items-center justify-between px-5 pt-4 pb-3 ${cleared ? "bg-emerald-50" : hot ? "bg-red-50/40" : ""}`}>
         <div className="flex items-center gap-2">
-          <span className={`text-2xl ${cleared ? "animate-bounce" : ""}`}>{emoji}</span>
+          <span className={`text-xl ${cleared ? "animate-bounce" : ""}`}>{emoji}</span>
           <p className="font-bold text-slate-700 text-sm">{title}</p>
         </div>
         <span className={`text-[10px] font-black px-2 py-1 rounded-full ${
@@ -69,107 +54,133 @@ function MilestoneCard({ emoji, title, current, step, unit }: {
         </span>
       </div>
       {cleared && (
-        <div className="mx-5 mb-3 bg-emerald-500 rounded-xl px-4 py-2 flex items-center gap-2">
-          <span className="text-white text-lg animate-bounce">🎉</span>
+        <div className="mx-5 mb-2 bg-emerald-500 rounded-xl px-3 py-2 flex items-center gap-2">
+          <span className="text-white text-base animate-bounce">🎉</span>
           <p className="text-white text-xs font-black">CLEARED! 次のステージへ！</p>
         </div>
       )}
-      <div className="px-5 pb-2">
-        <div className="flex items-end gap-1.5">
+      <div className="px-5 pb-1">
+        <div className="flex items-end gap-1">
           <span className="text-slate-400 text-sm">あと</span>
-          <span className={`text-4xl font-black leading-none ${cleared ? "text-emerald-500" : hot ? "text-[#dc2626]" : "text-[#1e3a5f]"}`}>{remain}</span>
-          <span className={`text-lg font-bold mb-0.5 ${cleared ? "text-emerald-500" : hot ? "text-[#dc2626]" : "text-[#1e3a5f]"}`}>{unit}</span>
+          <span className={`text-3xl font-black leading-none ${cleared ? "text-emerald-500" : hot ? "text-[#dc2626]" : "text-[#1e3a5f]"}`}>{remain}</span>
+          <span className={`text-base font-bold mb-0.5 ${cleared ? "text-emerald-500" : hot ? "text-[#dc2626]" : "text-[#1e3a5f]"}`}>{unit}</span>
           <span className="text-slate-400 text-xs mb-0.5 ml-1">で Lv.{tier} 達成</span>
         </div>
       </div>
-      <div className="px-5 pb-4">
-        <div className="flex items-center justify-between mb-1.5">
+      <div className="px-5 pb-4 mt-2">
+        <div className="flex items-center justify-between mb-1">
           <span className="text-slate-400 text-xs">{prev} → {current} / {target}{unit}</span>
           <span className={`text-xs font-bold ${hot || cleared ? "text-[#dc2626]" : "text-[#1e3a5f]"}`}>{pct}%</span>
         </div>
-        <ProgressBar pct={pct} hot={hot && !cleared} />
-        <p className="text-slate-400 text-[10px] mt-1.5">現在の目標：{target}{unit}（Lv.{tier} / ステップ幅 {step}{unit}）</p>
+        <Bar pct={pct} hot={hot && !cleared} />
+        <p className="text-slate-400 text-[10px] mt-1">Lv.{tier} 目標：{target}{unit}（ステップ {step}{unit}）</p>
       </div>
     </div>
   );
 }
 
-// ── レジェンドカード（特別枠） ────────────────────────────────
-function LegendCard({ emoji, badgeLabel, title, note, current, target, unit, isNewRecord }: {
+// ── Hall of Fame カード ─────────────────────────────────────
+function HofCard({ emoji, label, current, record, unit }: {
   emoji: string;
-  badgeLabel: string;
-  title: string;
-  note: string;
+  label: string;
   current: number;
-  target: number;
+  record: RecordHolder;
   unit: string;
-  isNewRecord: boolean;
 }) {
-  const remain = Math.max(target - current, 0);
-  const pct    = target === 0 ? 100 : Math.min(Math.round((current / target) * 100), 100);
-  const done   = current >= target;
+  const isNewRecord = current > record.value;
+  const isTied      = current === record.value && record.year !== "2026";
+  const pct         = record.value === 0 ? 100 : Math.min(Math.round((current / record.value) * 100), 999);
+  const remain      = Math.max(record.value - current + 1, 0); // +1 for "更新"
 
   return (
-    <div className="rounded-2xl overflow-hidden border-2 border-amber-400/60 shadow-lg">
-      {/* ゴールド×ダークグラデーション */}
-      <div className="bg-gradient-to-br from-slate-900 via-[#1a1a2e] to-slate-900 px-5 pt-5 pb-4">
-        {/* バッジ */}
+    <div className="rounded-2xl overflow-hidden border-2 border-amber-400/50 shadow-xl">
+      {/* ── ダークヘッダー ── */}
+      <div className="bg-gradient-to-br from-[#0a0f1e] via-[#1a1a2e] to-[#0d1117] px-5 pt-5 pb-4 relative overflow-hidden">
+        {/* 装飾ライン */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/40 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/20 to-transparent" />
+        </div>
+
+        {/* バッジ行 */}
         <div className="flex items-center justify-between mb-3">
-          <span className="text-amber-400 text-[10px] font-black tracking-[0.25em] uppercase">{badgeLabel}</span>
+          <div className="flex items-center gap-1.5">
+            <span className="text-amber-400 text-[9px] font-black tracking-[0.3em] uppercase">Hall of Fame</span>
+          </div>
           {isNewRecord && (
-            <span className="text-xs font-black text-amber-900 bg-amber-400 px-2.5 py-1 rounded-full animate-pulse">
-              👑 NEW RECORD!!
+            <span className="text-[10px] font-black bg-amber-400 text-amber-900 px-2.5 py-1 rounded-full animate-pulse">
+              🏆 ALL-TIME RECORD!!
             </span>
           )}
-          {done && !isNewRecord && (
-            <span className="text-xs font-black text-emerald-900 bg-emerald-400 px-2.5 py-1 rounded-full animate-bounce">🎉 達成！</span>
+          {isTied && (
+            <span className="text-[10px] font-black bg-emerald-400 text-emerald-900 px-2.5 py-1 rounded-full animate-bounce">
+              🤝 タイ記録！！
+            </span>
           )}
         </div>
 
-        {/* タイトル */}
-        <p className="text-white font-black text-base leading-tight mb-1">{title}</p>
-        <p className="text-white/40 text-[10px] mb-4">{note}</p>
+        {/* 項目名 */}
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-2xl">{emoji}</span>
+          <p className="text-white font-black text-sm">{label}</p>
+        </div>
 
-        {/* 数値 */}
-        {isNewRecord ? (
-          <div className="flex items-end gap-2">
-            <span className="text-amber-400 text-5xl font-black leading-none animate-pulse">{current}</span>
-            <div className="pb-1">
-              <p className="text-amber-400 font-black text-base">{unit}</p>
-              <p className="text-white/40 text-[10px]">記録更新中！（旧記録 {target}{unit}）</p>
+        {/* 歴代記録 */}
+        <div className="flex items-end justify-between">
+          <div>
+            <p className="text-white/40 text-[10px] mb-0.5">歴代最高記録</p>
+            <div className="flex items-end gap-1">
+              <span className="text-amber-400 text-3xl font-black leading-none">{record.value}</span>
+              <span className="text-amber-400/70 text-base font-bold pb-0.5">{unit}</span>
             </div>
+            <p className="text-white/30 text-[10px] mt-0.5">{record.year}年シーズン</p>
           </div>
-        ) : done ? (
-          <p className="text-emerald-400 text-4xl font-black">目標達成🎉</p>
-        ) : (
-          <div className="flex items-end gap-1.5">
-            <span className="text-white/40 text-sm">あと</span>
-            <span className="text-amber-400 text-5xl font-black leading-none">{remain}</span>
-            <span className="text-amber-400 text-xl font-black pb-1">{unit}</span>
+          <div className="text-right">
+            <p className="text-white/40 text-[10px] mb-0.5">2026年 現在</p>
+            <span className={`text-3xl font-black leading-none ${isNewRecord ? "text-amber-400 animate-pulse" : "text-white"}`}>
+              {current}
+            </span>
+            <p className="text-white/30 text-[10px] mt-0.5">{unit}</p>
           </div>
-        )}
+        </div>
 
-        {/* プログレスバー（ゴールド） */}
+        {/* 金色プログレスバー */}
         <div className="mt-4">
-          <div className="flex items-center justify-between mb-1.5">
-            <span className="text-white/30 text-[10px]">{current} / {target}{unit}</span>
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-white/30 text-[10px]">
+              {isNewRecord ? "記録更新中！" : `あと ${remain} ${unit} で更新`}
+            </span>
             <span className="text-amber-400 text-[10px] font-bold">{pct}%</span>
           </div>
           <div className="w-full h-2.5 bg-white/10 rounded-full overflow-hidden">
             <div
-              className="h-full rounded-full transition-all duration-700"
+              className={`h-full rounded-full transition-all duration-700 ${isNewRecord ? "animate-pulse" : ""}`}
               style={{
-                width: `${pct}%`,
-                background: "linear-gradient(90deg, #b45309, #f59e0b, #fde68a)",
-                boxShadow: "0 0 8px rgba(245,158,11,0.5)",
+                width: `${Math.min(pct, 100)}%`,
+                background: isNewRecord
+                  ? "linear-gradient(90deg, #f59e0b, #fde68a, #fffbeb)"
+                  : "linear-gradient(90deg, #92400e, #f59e0b, #fbbf24)",
+                boxShadow: "0 0 10px rgba(245,158,11,0.5)",
               }}
             />
           </div>
         </div>
+
+        {/* 記録更新時の特別メッセージ */}
+        {isNewRecord && (
+          <div className="mt-3 bg-amber-400/20 border border-amber-400/40 rounded-xl px-3 py-2 text-center">
+            <p className="text-amber-300 text-xs font-black animate-pulse">
+              🎊 ALL-TIME RECORD UPDATED!! 🎊
+            </p>
+            <p className="text-amber-400/70 text-[10px] mt-0.5">歴代記録を塗り替えた！！</p>
+          </div>
+        )}
       </div>
+
       {/* ゴールドフッター */}
-      <div className="bg-amber-400/10 border-t border-amber-400/30 px-5 py-2">
-        <span className="text-amber-700 text-[10px] font-semibold">{emoji} {badgeLabel}</span>
+      <div className="bg-gradient-to-r from-amber-900/20 via-amber-400/10 to-amber-900/20 border-t border-amber-400/30 px-5 py-2 flex items-center justify-between">
+        <span className="text-amber-700/70 text-[9px] font-semibold uppercase tracking-widest">Legendary Record</span>
+        <span className="text-amber-600 text-[10px] font-bold">歴代最高：{record.value}{unit}（{record.year}年）</span>
       </div>
     </div>
   );
@@ -177,9 +188,7 @@ function LegendCard({ emoji, badgeLabel, title, note, current, target, unit, isN
 
 // ── 年末カウントダウン ────────────────────────────────────────
 function YearEndBanner() {
-  const now     = new Date();
-  const yearEnd = new Date(now.getFullYear(), 11, 31);
-  const days    = Math.ceil((yearEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+  const days = Math.ceil((new Date(new Date().getFullYear(), 11, 31).getTime() - new Date().getTime()) / 86400000);
   return (
     <div className="bg-[#1e3a5f] rounded-2xl px-5 py-4 flex items-center justify-between">
       <div>
@@ -199,7 +208,7 @@ export default function MilestoneDashboard({ teamStats, pitchers, teamHistory }:
   if (!teamStats) return <div className="px-5 py-8 text-center text-slate-400 text-sm">2026年度のデータがありません</div>;
 
   const totalKs = pitchers.reduce((s, p) => s + p.strikeouts, 0);
-  const { lastYear, allTime } = teamHistory;
+  const { recordHolders } = teamHistory;
 
   return (
     <div className="flex flex-col gap-5 px-5 py-4 pb-8">
@@ -215,53 +224,36 @@ export default function MilestoneDashboard({ teamStats, pitchers, teamHistory }:
       {/* 年末カウントダウン */}
       <YearEndBanner />
 
-      {/* ── 特別枠：レジェンドマイルストーン ── */}
-      <div>
+      {/* ── 🎯 シーズン目標（Step-up Goals） ── */}
+      <section>
         <div className="flex items-center gap-2 mb-3">
-          <div className="h-px flex-1 bg-amber-300" />
-          <span className="text-amber-600 text-[10px] font-black tracking-widest uppercase">Legend Milestones</span>
-          <div className="h-px flex-1 bg-amber-300" />
+          <div className="h-px flex-1 bg-slate-200" />
+          <span className="text-slate-500 text-[10px] font-black uppercase tracking-widest">🎯 シーズン目標 — Step-up Goals</span>
+          <div className="h-px flex-1 bg-slate-200" />
         </div>
-        <div className="flex flex-col gap-4">
-          {/* 昨季超えカード */}
-          <LegendCard
-            emoji="🔥"
-            badgeLabel="昨季超えへの挑戦 vs 2025"
-            title={lastYear ? `2025年の${lastYear.wins}勝を超えろ！` : "昨季データなし"}
-            note={lastYear ? `2025年シーズン勝利数：${lastYear.wins}勝` : ""}
-            current={teamStats.wins}
-            target={lastYear?.wins ?? 0}
-            unit="勝"
-            isNewRecord={teamStats.wins > (lastYear?.wins ?? Infinity)}
-          />
-          <LegendCard
-            emoji="👑"
-            badgeLabel="球団史を塗り替えろ！歴代最高記録"
-            title={`歴代最高・${allTime.wins}勝の更新まであと${Math.max(allTime.wins - teamStats.wins + 1, 0)}勝！`}
-            note={`歴代最高：通算 ${allTime.wins}勝 / 最多得点 ${allTime.runs}点`}
-            current={teamStats.wins}
-            target={allTime.wins + 1}
-            unit="勝"
-            isNewRecord={teamStats.wins >= allTime.wins + 1}
-          />
+        <div className="flex flex-col gap-3">
+          <TierCard emoji="🏆" title="シーズン勝利数"   current={teamStats.wins}        step={10} unit="勝" />
+          <TierCard emoji="🔥" title="チーム総得点"     current={teamStats.runs}        step={50} unit="点" />
+          <TierCard emoji="💣" title="チーム本塁打"     current={teamStats.homeRuns}    step={10} unit="本" />
+          <TierCard emoji="⚡" title="投手陣・奪三振"   current={totalKs}               step={50} unit="K" />
+          <TierCard emoji="💨" title="チーム総盗塁"     current={teamStats.stolenBases} step={30} unit="盗塁" />
         </div>
-      </div>
+      </section>
 
-      {/* ── 通常マイルストーン ── */}
-      <div>
+      {/* ── 🏆 歴代最高記録への挑戦（Legendary Records） ── */}
+      <section>
         <div className="flex items-center gap-2 mb-3">
-          <div className="h-px flex-1 bg-slate-200" />
-          <span className="text-slate-400 text-[10px] font-semibold uppercase tracking-widest">Season Goals</span>
-          <div className="h-px flex-1 bg-slate-200" />
+          <div className="h-px flex-1 bg-amber-300" />
+          <span className="text-amber-600 text-[10px] font-black uppercase tracking-widest">🏆 Legendary Records</span>
+          <div className="h-px flex-1 bg-amber-300" />
         </div>
         <div className="flex flex-col gap-4">
-          <MilestoneCard emoji="🏆" title="シーズン勝利数"   current={teamStats.wins}        step={10} unit="勝" />
-          <MilestoneCard emoji="🔥" title="チーム総得点"     current={teamStats.runs}        step={50} unit="点" />
-          <MilestoneCard emoji="💣" title="チーム本塁打"     current={teamStats.homeRuns}    step={10} unit="本" />
-          <MilestoneCard emoji="⚡" title="投手陣・奪三振"   current={totalKs}               step={50} unit="K" />
-          <MilestoneCard emoji="💨" title="チーム総盗塁"     current={teamStats.stolenBases} step={30} unit="盗塁" />
+          <HofCard emoji="🏆" label="歴代最高勝利数"  current={teamStats.wins}        record={recordHolders.wins}        unit="勝" />
+          <HofCard emoji="🔥" label="歴代最高得点数"  current={teamStats.runs}        record={recordHolders.runs}        unit="点" />
+          <HofCard emoji="💣" label="歴代最高本塁打数" current={teamStats.homeRuns}    record={recordHolders.homeRuns}    unit="本" />
+          <HofCard emoji="💨" label="歴代最高盗塁数"  current={teamStats.stolenBases} record={recordHolders.stolenBases} unit="盗塁" />
         </div>
-      </div>
+      </section>
     </div>
   );
 }
