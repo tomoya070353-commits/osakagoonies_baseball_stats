@@ -9,6 +9,7 @@ import PlayerRadar from "@/components/PlayerRadar";
 import DirectionChart from "@/components/DirectionChart";
 import ContactChart from "@/components/ContactChart";
 import PitcherCard, { NoPitcherData } from "@/components/PitcherCard";
+import NextGameMission from "@/components/NextGameMission";
 
 interface PlayerTabProps {
   players: PlayerStats[];
@@ -66,6 +67,7 @@ export default function PlayerTab({ players, selected, onSelect, pitchers }: Pla
       {/* ── 野手成績 ── */}
       {category === "batter" && (
         <>
+          <NextGameMission player={selected} />
           <QuickStats player={selected} />
           <div className="px-5 grid grid-cols-1 md:grid-cols-2 gap-5">
             <PlayerRadar player={selected} />
