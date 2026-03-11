@@ -10,6 +10,7 @@ import MilestoneDashboard from "@/components/MilestoneDashboard";
 import SwotDashboard from "@/components/SwotDashboard";
 import LineupSimulator from "@/components/LineupSimulator"; // Added import for LineupSimulator
 import AmidakujiDashboard from "@/components/AmidakujiDashboard"; // Added import for Amidakuji
+import WeeklyRivalMatchup from "@/components/WeeklyRivalMatchup"; // Added import for Rival Matchup
 import { ChevronRight, Shield, Shuffle } from "lucide-react"; // Added Icons
 
 type SubView = null | "compare" | "salary" | "milestone" | "swot" | "lineup" | "amida"; // Updated SubView type
@@ -164,6 +165,10 @@ export default function ClubhouseDashboard({ players, pitchers, teamStats, teamH
         </div>
         <h1 className="text-3xl font-black text-slate-900 tracking-tight">クラブハウス</h1>
         <p className="text-slate-400 text-sm mt-1">Osaka Goonies — 選手メニュー</p>
+      </motion.div>
+
+      <motion.div {...stagger(0.5)} className="-mx-5 sm:mx-0">
+        <WeeklyRivalMatchup players={players} />
       </motion.div>
 
       <div className="flex flex-col gap-3">
