@@ -23,6 +23,7 @@ interface AppClientProps {
 
 export default function AppClient({ players, teamStats, pitchers, teamHistory }: AppClientProps) {
   const [activeTab, setActiveTab] = useState<Tab>("team");
+  const [clubhouseResetKey, setClubhouseResetKey] = useState(0);
   const [selected, setSelected] = useState<PlayerStats>(players[0]);
   const [showSplash, setShowSplash] = useState(true);
 
@@ -36,6 +37,13 @@ export default function AppClient({ players, teamStats, pitchers, teamHistory }:
   const handleDrillDown = (player: PlayerStats) => {
     setSelected(player);
     setActiveTab("player");
+  };
+
+  const handleTabChange = (tab: Tab) => {
+    if (tab === "clubhouse" && activeTab === "clubhouse") {
+      setClubhouseResetKey((prev) => prev + 1);
+    }
+    setActiveTab(tab);
   };
 
   const TAB_TITLES: Record<Tab, string> = {
@@ -78,11 +86,11 @@ export default function AppClient({ players, teamStats, pitchers, teamHistory }:
             />
           )}
           {activeTab === "clubhouse" && (
-            <ClubhouseDashboard players={players} pitchers={pitchers} teamStats={teamStats} teamHistory={teamHistory} />
+            <ClubhouseDashboard key={`clubhouse-${clubhouseResetKey}`} players={players} pitchers={pitchers} teamStats={teamStats} teamHistory={teamHistory} />
           )}
         </main>
 
-        <BottomNav activeTab={activeTab} onChange={setActiveTab} />
+        <BottomNav activeTab={activeTab} onChange={handleTabChange} />
       </div>
     </>
   );

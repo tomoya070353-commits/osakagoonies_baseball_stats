@@ -138,16 +138,17 @@ export default function ClubhouseDashboard({ players, pitchers, teamStats, teamH
 
 function BackBar({ label, onBack }: { label: string; onBack: () => void }) {
   return (
-    <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-100 bg-white/80">
+    <div className="flex flex-col gap-2 px-5 py-4 border-b border-slate-100 bg-white/80">
       <button
         onClick={onBack}
-        className="flex items-center gap-1 text-[#1e3a5f] font-semibold text-sm"
+        className="flex items-center gap-2 text-slate-500 hover:text-slate-800 font-semibold text-sm transition-colors w-fit"
       >
-        <ChevronRight size={16} className="rotate-180" />
-        <span>クラブハウス</span>
+        <ChevronRight size={18} className="rotate-180" />
+        <span>クラブハウスに戻る</span>
       </button>
-      <span className="text-slate-300">|</span>
-      <span className="text-slate-500 text-sm">{label}</span>
+      <div className="pl-6">
+        <span className="text-slate-400 text-xs font-bold">{label}</span>
+      </div>
     </div>
   );
 }
