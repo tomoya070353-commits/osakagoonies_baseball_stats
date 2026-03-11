@@ -76,28 +76,23 @@ interface MenuCardProps {
   subtitle: string;
   icon: React.ReactNode;
   onClick: () => void;
-  color: string;
-  badge?: string;
+  accent: string;
 }
 
-function MenuCard({ title, subtitle, icon, onClick, color, badge }: MenuCardProps) {
+function MenuCard({ title, subtitle, icon, onClick, accent }: MenuCardProps) {
   return (
     <button
       onClick={onClick}
-      className={`w-full bg-white border ${color} shadow-sm rounded-2xl p-5 flex items-center gap-4 text-left active:scale-[0.98] transition-transform hover:shadow-md hover:border-[#1e3a5f]`}
+      className={`w-full bg-white border border-slate-200 shadow-sm rounded-2xl p-5 flex items-center gap-4 text-left active:scale-[0.98] transition-transform hover:shadow-md`}
     >
-      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shrink-0 bg-slate-50 border border-slate-100`}>
+      <div 
+        className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shrink-0"
+        style={{ background: `${accent}15` }}
+      >
         {icon}
       </div>
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <p className="font-black text-slate-900 text-base">{title}</p>
-          {badge && (
-            <span className="px-2 py-0.5 text-[10px] font-bold text-[#1e3a5f] bg-[#1e3a5f]/10 border border-[#1e3a5f]/20 rounded-full">
-              {badge}
-            </span>
-          )}
-        </div>
+        <p className="font-black text-slate-900 text-base">{title}</p>
         <p className="text-slate-400 text-xs mt-0.5">{subtitle}</p>
       </div>
       <ChevronRight size={18} className="text-slate-300 shrink-0" />
@@ -209,8 +204,7 @@ export default function ClubhouseDashboard({ players, pitchers, teamStats, teamH
               subtitle="参加メンバーから最適オーダーを自動生成"
               icon={<Shield size={24} className="text-[#1e3a5f]" />}
               onClick={() => setSubView("lineup")}
-              color="border-[rgb(30,58,95)]"
-              badge="NEW AI機能"
+              accent="#1e3a5f"
             />
           </motion.div>
 
@@ -218,10 +212,9 @@ export default function ClubhouseDashboard({ players, pitchers, teamStats, teamH
             <MenuCard
               title="運命のあみだくじ"
               subtitle="打順や余興を運任せに決めるエンタメ機能"
-              icon={<Shuffle size={24} className="text-amber-600" />}
+              icon={<Shuffle size={24} className="text-[#d97706]" />}
               onClick={() => setSubView("amida")}
-              color="border-amber-600"
-              badge="お楽しみ"
+              accent="#d97706"
             />
           </motion.div>
         </div>
