@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import type { PlayerStats } from "@/types";
 import type { PitcherStats } from "@/app/actions";
 import PlayerHeader from "@/components/PlayerHeader";
@@ -64,25 +65,38 @@ export default function PlayerTab({ players, selected, onSelect, pitchers }: Pla
         </div>
       </div>
 
-      {/* ── 野手成績 ── */}
-      {category === "batter" && (
-        <>
-          <NextGameMission player={selected} />
-          <QuickStats player={selected} />
-          <div className="px-5 grid grid-cols-1 md:grid-cols-2 gap-5">
-            <PlayerRadar player={selected} />
-            <DirectionChart player={selected} />
-            <ContactChart player={selected} />
-          </div>
-        </>
-      )}
+      {/* ── 成績表示エリア（アニメーション付き切り替え） ── */}
+      <div className="relative">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={`${selected.name}-${category}`}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3 }}
+          >
+            {/* ── 野手成績 ── */}
+            {category === "batter" && (
+              <>
+                <NextGameMission player={selected} />
+                <QuickStats player={selected} />
+                <div className="px-5 grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <PlayerRadar player={selected} />
+                  <DirectionChart player={selected} />
+                  <ContactChart player={selected} />
+                </div>
+              </>
+            )}
 
-      {/* ── 投手成績 ── */}
-      {category === "pitcher" && (
-        pitcherData
-          ? <PitcherCard pitcher={pitcherData} />
-          : <NoPitcherData />
-      )}
+            {/* ── 投手成績 ── */}
+            {category === "pitcher" && (
+              pitcherData
+                ? <PitcherCard pitcher={pitcherData} />
+                : <NoPitcherData />
+            )}
+          </motion.div>
+        </AnimatePresence>
+      </div>
 
       <div className="h-4" />
     </div>
