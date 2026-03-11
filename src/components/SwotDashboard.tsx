@@ -145,7 +145,7 @@ function QuadrantCard({
   theme: { bg: string; border: string; badge: string; text: string };
 }) {
   return (
-    <div className={`rounded-xl border-2 overflow-hidden ${theme.border}`}>
+    <div className={`rounded-xl border-2 overflow-hidden flex flex-col ${theme.border}`}>
       {/* ヘッダー */}
       <div className={`px-4 py-2.5 flex items-center gap-2 ${theme.bg}`}>
         <motion.span
@@ -274,7 +274,7 @@ export default function SwotDashboard({ players }: SwotDashboardProps) {
           </motion.div>
         ) : (
           <motion.div
-            key="report"
+            key={`report-${selected.name}`}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
@@ -311,7 +311,7 @@ export default function SwotDashboard({ players }: SwotDashboardProps) {
 
             {/* SWOT 2×2グリッド */}
             <motion.div
-              className="grid grid-cols-2 gap-3"
+              className="flex flex-col gap-4"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.6, delay: 0.3 }}

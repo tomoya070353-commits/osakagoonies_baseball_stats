@@ -164,7 +164,7 @@ export default function SalaryDashboard({ players, pitchers }: SalaryDashboardPr
           </motion.div>
         ) : (
           <motion.div
-            key="salary-card"
+            key={`salary-${selected.name}`}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
