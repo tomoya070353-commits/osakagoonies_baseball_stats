@@ -39,9 +39,12 @@ function extractMonth(dateStr: string): string | null {
 }
 
 export function calculateMonthlyAwards(players: PlayerStats[]): MonthlyAwardsData | null {
+  // 表彰・ランキングの対象から「助っ人」を除外する
+  const eligiblePlayers = players.filter(p => !p.name.includes("助っ人"));
+
   // 1. まず最も新しい「月」を見つける
   let latestMonth = "";
-  for (const p of players) {
+  for (const p of eligiblePlayers) {
     for (const g of p.games) {
       const m = extractMonth(g.date);
       if (m && m > latestMonth) {
@@ -66,7 +69,7 @@ export function calculateMonthlyAwards(players: PlayerStats[]): MonthlyAwardsDat
 
   const monthlyStats: MonthlyStat[] = [];
 
-  for (const p of players) {
+  for (const p of eligiblePlayers) {
     let atBats = 0;
     let plateAppearances = 0;
     let hits = 0;
