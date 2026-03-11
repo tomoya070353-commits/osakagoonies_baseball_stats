@@ -514,56 +514,58 @@ export default function AmidakujiDashboard({ players, onBack }: AmidakujiDashboa
                         initial={{ opacity: 0, y: 50 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-md flex items-end sm:items-center justify-center sm:p-5"
+                        className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-md overflow-y-auto"
                     >
-                        <div className="bg-white w-full sm:max-w-md h-[85vh] sm:h-auto sm:max-h-[85vh] rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-slate-200">
+                        <div className="min-h-full flex flex-col justify-end sm:justify-center sm:items-center pt-24 pb-0 sm:py-10">
+                            <div className="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col border border-slate-200 mt-auto sm:mt-0">
 
-                            <div className="bg-gradient-to-br from-[#1e3a5f] to-[#152a45] px-6 py-8 text-center relative overflow-hidden shrink-0">
-                                <motion.div
-                                    initial={{ scale: 0.5, opacity: 0 }}
-                                    animate={{ scale: 1, opacity: 1 }}
-                                    transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
-                                    className="absolute inset-0 flex items-center justify-center opacity-20"
-                                >
-                                    <PartyPopper size={120} className="text-white" />
-                                </motion.div>
-                                <h2 className="text-3xl font-black text-white relative z-10 tracking-widest drop-shadow-md">
-                                    RESULTS
-                                </h2>
-                                <p className="text-slate-300 text-sm font-bold mt-2 relative z-10">あみだくじの結果が確定しました</p>
-                            </div>
-
-                            <div className="flex-1 overflow-y-auto p-4 bg-slate-50 space-y-2">
-                                {amidaData.routes.map((route, i) => (
+                                <div className="bg-gradient-to-br from-[#1e3a5f] to-[#152a45] px-6 py-8 text-center relative overflow-hidden shrink-0 rounded-t-3xl sm:rounded-t-3xl">
                                     <motion.div
-                                        key={route.player}
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 0.3 + i * 0.1 }}
-                                        className={`flex items-center justify-between p-4 rounded-xl border ${route.result.isHit ? "bg-red-50 border-red-200 shadow-sm" : "bg-white border-slate-200"}`}
+                                        initial={{ scale: 0.5, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
+                                        className="absolute inset-0 flex items-center justify-center opacity-20"
                                     >
-                                        <span className="font-black text-slate-800 flex items-center gap-2">
-                                            <div className="w-6 h-6 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-[10px]">{i + 1}</div>
-                                            {route.player}
-                                        </span>
-                                        <span className={`text-lg font-black px-3 py-1 rounded-lg ${route.result.isHit ? "bg-red-500 text-white shadow-md shadow-red-500/20" : "bg-slate-100 text-slate-600"}`}>
-                                            {route.result.label}
-                                        </span>
+                                        <PartyPopper size={120} className="text-white" />
                                     </motion.div>
-                                ))}
-                            </div>
+                                    <h2 className="text-3xl font-black text-white relative z-10 tracking-widest drop-shadow-md">
+                                        RESULTS
+                                    </h2>
+                                    <p className="text-slate-300 text-sm font-bold mt-2 relative z-10">あみだくじの結果が確定しました</p>
+                                </div>
 
-                            <div className="p-4 bg-white border-t border-slate-200 shrink-0">
-                                <button
-                                    onClick={() => {
-                                        setShowResults(false);
-                                    }}
-                                    className="w-full bg-[#1e3a5f] text-white py-4 rounded-xl font-black text-lg transition-transform active:scale-[0.98] shadow-md hover:bg-[#152a45]"
-                                >
-                                    結果を閉じてやり直す
-                                </button>
-                            </div>
+                                <div className="flex-1 p-4 bg-slate-50 space-y-2">
+                                    {amidaData.routes.map((route, i) => (
+                                        <motion.div
+                                            key={route.player}
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.3 + i * 0.1 }}
+                                            className={`flex items-center justify-between p-4 rounded-xl border ${route.result.isHit ? "bg-red-50 border-red-200 shadow-sm" : "bg-white border-slate-200"}`}
+                                        >
+                                            <span className="font-black text-slate-800 flex items-center gap-2">
+                                                <div className="w-6 h-6 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-[10px]">{i + 1}</div>
+                                                {route.player}
+                                            </span>
+                                            <span className={`text-lg font-black px-3 py-1 rounded-lg ${route.result.isHit ? "bg-red-500 text-white shadow-md shadow-red-500/20" : "bg-slate-100 text-slate-600"}`}>
+                                                {route.result.label}
+                                            </span>
+                                        </motion.div>
+                                    ))}
+                                </div>
 
+                                <div className="p-4 pb-12 sm:pb-6 bg-white border-t border-slate-200 shrink-0">
+                                    <button
+                                        onClick={() => {
+                                            setShowResults(false);
+                                        }}
+                                        className="w-full bg-[#1e3a5f] text-white py-4 rounded-xl font-black text-lg transition-transform active:scale-[0.98] shadow-md hover:bg-[#152a45]"
+                                    >
+                                        結果を閉じてやり直す
+                                    </button>
+                                </div>
+
+                            </div>
                         </div>
                     </motion.div>
                 )}
