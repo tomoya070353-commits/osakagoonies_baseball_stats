@@ -9,9 +9,10 @@ import SalaryDashboard from "@/components/SalaryDashboard";
 import MilestoneDashboard from "@/components/MilestoneDashboard";
 import SwotDashboard from "@/components/SwotDashboard";
 import LineupSimulator from "@/components/LineupSimulator"; // Added import for LineupSimulator
-import { ChevronRight, Shield } from "lucide-react"; // Added Shield import
+import AmidakujiDashboard from "@/components/AmidakujiDashboard"; // Added import for Amidakuji
+import { ChevronRight, Shield, Shuffle } from "lucide-react"; // Added Icons
 
-type SubView = null | "compare" | "salary" | "milestone" | "swot" | "lineup"; // Updated SubView type
+type SubView = null | "compare" | "salary" | "milestone" | "swot" | "lineup" | "amida"; // Updated SubView type
 
 interface ClubhouseDashboardProps {
   players: PlayerStats[];
@@ -102,7 +103,7 @@ function MenuCard({ title, subtitle, icon, onClick, color, badge }: MenuCardProp
 }
 
 export default function ClubhouseDashboard({ players, pitchers, teamStats, teamHistory }: ClubhouseDashboardProps) {
-  const [subView, setSubView] = useState<"compare" | "salary" | "milestone" | "swot" | "lineup" | null>(null); // Updated useState type
+  const [subView, setSubView] = useState<"compare" | "salary" | "milestone" | "swot" | "lineup" | "amida" | null>(null);
 
   if (subView === "milestone") {
     return (
@@ -146,6 +147,15 @@ export default function ClubhouseDashboard({ players, pitchers, teamStats, teamH
     );
   }
 
+  if (subView === "amida") {
+    return (
+      <div className="min-h-screen bg-slate-50 pb-24">
+        <BackBar label="運命のあみだくじ" onBack={() => setSubView(null)} />
+        <AmidakujiDashboard players={players} onBack={() => setSubView(null)} />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-5 px-5 py-4 pb-8">
       <motion.div {...stagger(0)}>
@@ -178,17 +188,30 @@ export default function ClubhouseDashboard({ players, pitchers, teamStats, teamH
           </motion.button>
         ))}
 
-        {/* 下段：新機能 */}
-        <motion.div {...stagger(MENU_ITEMS.length + 1)}>
-          <MenuCard
-            title="AIスタメン・打順シミュレーター"
-            subtitle="参加メンバーから最適オーダーを自動生成"
-            icon={<Shield size={24} className="text-[#1e3a5f]" />}
-            onClick={() => setSubView("lineup")}
-            color="border-[#1e3a5f]"
-            badge="NEW AI機能"
-          />
-        </motion.div>
+        {/* 下段：新機能グリッド */}
+        <div className="flex flex-col gap-3">
+          <motion.div {...stagger(MENU_ITEMS.length + 1)}>
+            <MenuCard
+              title="AIスタメン・打順シミュレーター"
+              subtitle="参加メンバーから最適オーダーを自動生成"
+              icon={<Shield size={24} className="text-[#1e3a5f]" />}
+              onClick={() => setSubView("lineup")}
+              color="border-[rgb(30,58,95)]"
+              badge="NEW AI機能"
+            />
+          </motion.div>
+
+          <motion.div {...stagger(MENU_ITEMS.length + 2)}>
+            <MenuCard
+              title="運命のあみだくじ"
+              subtitle="打順や余興を運任せに決めるエンタメ機能"
+              icon={<Shuffle size={24} className="text-amber-600" />}
+              onClick={() => setSubView("amida")}
+              color="border-amber-600"
+              badge="お楽しみ"
+            />
+          </motion.div>
+        </div>
       </div>
     </div>
   );
