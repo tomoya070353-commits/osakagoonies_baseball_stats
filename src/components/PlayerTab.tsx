@@ -9,7 +9,6 @@ import PlayerRadar from "@/components/PlayerRadar";
 import DirectionChart from "@/components/DirectionChart";
 import ContactChart from "@/components/ContactChart";
 import PitcherCard, { NoPitcherData } from "@/components/PitcherCard";
-import SprayChart from "@/components/SprayChart";
 
 interface PlayerTabProps {
   players: PlayerStats[];
@@ -44,8 +43,8 @@ export default function PlayerTab({ players, selected, onSelect, pitchers }: Pla
           <button
             onClick={() => setCategory("batter")}
             className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-semibold transition-all ${category === "batter"
-                ? "bg-white shadow-sm text-[#1e3a5f]"
-                : "text-slate-400 hover:text-slate-600"
+              ? "bg-white shadow-sm text-[#1e3a5f]"
+              : "text-slate-400 hover:text-slate-600"
               }`}
           >
             <span>⚾</span>
@@ -54,8 +53,8 @@ export default function PlayerTab({ players, selected, onSelect, pitchers }: Pla
           <button
             onClick={() => setCategory("pitcher")}
             className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-semibold transition-all ${category === "pitcher"
-                ? "bg-white shadow-sm text-[#1e3a5f]"
-                : "text-slate-400 hover:text-slate-600"
+              ? "bg-white shadow-sm text-[#1e3a5f]"
+              : "text-slate-400 hover:text-slate-600"
               }`}
           >
             <span>🏟️</span>
@@ -72,10 +71,6 @@ export default function PlayerTab({ players, selected, onSelect, pitchers }: Pla
             <PlayerRadar player={selected} />
             <DirectionChart player={selected} />
             <ContactChart player={selected} />
-          </div>
-
-          <div className="px-5 mt-4">
-            <SprayChart player={selected} />
           </div>
         </>
       )}

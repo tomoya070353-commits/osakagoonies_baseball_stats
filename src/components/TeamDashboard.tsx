@@ -189,11 +189,6 @@ export default function TeamDashboard({ players, teamStats }: TeamDashboardProps
           <p className="text-slate-400 text-sm text-center py-6">2026年度のデータがありません</p>
         </div>
       )}
-
-      {/* 5: フライ・ゴロ比率 */}
-      <motion.div className="px-5" variants={fadeUp} initial="hidden" animate="visible" {...stagger(5)}>
-        <ContactChart player={teamAggregate} />
-      </motion.div>
     </div>
   );
 }
