@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { PlayerStats } from "@/types";
+import { motion } from "framer-motion";
 import { ChevronDown, Check } from "lucide-react";
 
 interface SwotDashboardProps {
@@ -147,9 +148,14 @@ function QuadrantCard({
     <div className={`rounded-xl border-2 overflow-hidden ${theme.border}`}>
       {/* ヘッダー */}
       <div className={`px-4 py-2.5 flex items-center gap-2 ${theme.bg}`}>
-        <span className={`text-xs font-black px-2 py-0.5 rounded ${theme.badge}`}>
+        <motion.span
+          className={`inline-block text-xs font-black px-2 py-0.5 rounded origin-center ${theme.badge}`}
+          initial={{ scale: 2, rotate: -15, opacity: 0 }}
+          animate={{ scale: 1, rotate: 0, opacity: 1 }}
+          transition={{ type: "spring", stiffness: 300, damping: 15, delay: 0.1 }}
+        >
           {id}
-        </span>
+        </motion.span>
         <span className="text-xs font-bold tracking-widest uppercase" style={{ color: "#1e3a5f" }}>
           {label}
         </span>
@@ -167,10 +173,10 @@ function QuadrantCard({
 }
 
 const THEMES = {
-  S: { bg: "bg-[#1e3a5f]/8",  border: "border-[#1e3a5f]/40",  badge: "bg-[#1e3a5f] text-white",        text: "text-slate-700" },
-  W: { bg: "bg-red-50",        border: "border-red-200",         badge: "bg-[#dc2626] text-white",        text: "text-slate-700" },
-  O: { bg: "bg-emerald-50",    border: "border-emerald-200",     badge: "bg-emerald-600 text-white",      text: "text-slate-700" },
-  T: { bg: "bg-amber-50",      border: "border-amber-200",       badge: "bg-amber-500 text-white",        text: "text-slate-700" },
+  S: { bg: "bg-[#1e3a5f]/8", border: "border-[#1e3a5f]/40", badge: "bg-[#1e3a5f] text-white", text: "text-slate-700" },
+  W: { bg: "bg-red-50", border: "border-red-200", badge: "bg-[#dc2626] text-white", text: "text-slate-700" },
+  O: { bg: "bg-emerald-50", border: "border-emerald-200", badge: "bg-emerald-600 text-white", text: "text-slate-700" },
+  T: { bg: "bg-amber-50", border: "border-amber-200", badge: "bg-amber-500 text-white", text: "text-slate-700" },
 };
 
 // ── 選手セレクター ────────────────────────────────────────────
@@ -259,10 +265,10 @@ export default function SwotDashboard({ players }: SwotDashboardProps) {
 
       {/* SWOT 2×2グリッド */}
       <div className="grid grid-cols-2 gap-3">
-        <QuadrantCard id="S" label="Strengths（強み）"                   items={strengths}     theme={THEMES.S} />
-        <QuadrantCard id="W" label="Weaknesses（弱み）"                  items={weaknesses}    theme={THEMES.W} />
-        <QuadrantCard id="O" label="Opportunities（機会）"               items={opportunities} theme={THEMES.O} />
-        <QuadrantCard id="T" label="Threats（脅威）"                     items={threats}       theme={THEMES.T} />
+        <QuadrantCard id="S" label="Strengths（強み）" items={strengths} theme={THEMES.S} />
+        <QuadrantCard id="W" label="Weaknesses（弱み）" items={weaknesses} theme={THEMES.W} />
+        <QuadrantCard id="O" label="Opportunities（機会）" items={opportunities} theme={THEMES.O} />
+        <QuadrantCard id="T" label="Threats（脅威）" items={threats} theme={THEMES.T} />
       </div>
 
       {/* 免責 */}

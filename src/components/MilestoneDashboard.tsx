@@ -76,10 +76,15 @@ function TierCard({ emoji, title, current, step, unit }: {
         </span>
       </div>
       {cleared && (
-        <div className="mx-5 mb-2 bg-emerald-500 rounded-xl px-3 py-2 flex items-center gap-2">
+        <motion.div
+          className="mx-5 mb-2 bg-emerald-500 rounded-xl px-3 py-2 flex items-center gap-2"
+          initial={{ y: -20, opacity: 0, scale: 1.1 }}
+          animate={{ y: 0, opacity: 1, scale: 1 }}
+          transition={{ type: "spring", stiffness: 400, delay: 1.0 }} // メーターが伸び切った後くらいにドロップ
+        >
           <span className="text-white text-base animate-bounce">🎉</span>
           <p className="text-white text-xs font-black">CLEARED! 次のステージへ！</p>
-        </div>
+        </motion.div>
       )}
       <div className="px-5 pb-1">
         <div className="flex items-end gap-1">
@@ -138,79 +143,94 @@ function HofCard({ emoji, label, current, record, unit }: {
   const remain = Math.max(record.value - current + 1, 0); // +1 for "更新"
 
   return (
-    <div className="rounded-2xl overflow-hidden border-2 border-amber-400/50 shadow-xl">
+    <div className="rounded-2xl overflow-hidden border-2 border-amber-400/50 shadow-xl relative group">
       {/* ── ダークヘッダー ── */}
       <div className="bg-gradient-to-br from-[#0a0f1e] via-[#1a1a2e] to-[#0d1117] px-5 pt-5 pb-4 relative overflow-hidden">
+
+        {/* Shimmer 光沢エフェクト */}
+        <motion.div
+          className="absolute inset-0 z-0 pointer-events-none"
+          style={{
+            background: "linear-gradient(45deg, transparent 40%, rgba(251, 191, 36, 0.15) 50%, transparent 60%)",
+            backgroundSize: "200% 200%",
+          }}
+          animate={{ backgroundPosition: ["200% 200%", "-200% -200%"] }}
+          transition={{ repeat: Infinity, duration: 3, ease: "linear", repeatDelay: 2 }}
+        />
+
         {/* 装飾ライン */}
-        <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute inset-0 pointer-events-none z-0">
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/40 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/20 to-transparent" />
         </div>
 
-        {/* バッジ行 */}
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-1.5">
-            <span className="text-amber-400 text-[9px] font-black tracking-[0.3em] uppercase">Hall of Fame</span>
-          </div>
-          {isNewRecord && (
-            <span className="text-[10px] font-black bg-amber-400 text-amber-900 px-2.5 py-1 rounded-full animate-pulse">
-              🏆 ALL-TIME RECORD!!
-            </span>
-          )}
-          {isTied && (
-            <span className="text-[10px] font-black bg-emerald-400 text-emerald-900 px-2.5 py-1 rounded-full animate-bounce">
-              🤝 タイ記録！！
-            </span>
-          )}
-        </div>
-
-        {/* 項目名 */}
-        <div className="flex items-center gap-2 mb-3">
-          <span className="text-2xl">{emoji}</span>
-          <p className="text-white font-black text-sm">{label}</p>
-        </div>
-
-        {/* 歴代記録 */}
-        <div className="flex items-end justify-between">
-          <div>
-            <p className="text-white/40 text-[10px] mb-0.5">歴代最高記録</p>
-            <div className="flex items-end gap-1">
-              <span className="text-amber-400 text-3xl font-black leading-none">{record.value}</span>
-              <span className="text-amber-400/70 text-base font-bold pb-0.5">{unit}</span>
+        {/* コンテンツを z-index で前面に配置 */}
+        <div className="relative z-10">
+          {/* バッジ行 */}
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-1.5">
+              <span className="text-amber-400 text-[9px] font-black tracking-[0.3em] uppercase">Hall of Fame</span>
             </div>
-            <p className="text-white/30 text-[10px] mt-0.5">{record.year}年シーズン</p>
+            {isNewRecord && (
+              <span className="text-[10px] font-black bg-amber-400 text-amber-900 px-2.5 py-1 rounded-full animate-pulse">
+                🏆 ALL-TIME RECORD!!
+              </span>
+            )}
+            {isTied && (
+              <span className="text-[10px] font-black bg-emerald-400 text-emerald-900 px-2.5 py-1 rounded-full animate-bounce">
+                🤝 タイ記録！！
+              </span>
+            )}
           </div>
-          <div className="text-right">
-            <p className="text-white/40 text-[10px] mb-0.5">2026年 現在</p>
-            <span className={`text-3xl font-black leading-none ${isNewRecord ? "text-amber-400 animate-pulse" : "text-white"}`}>
-              {current}
-            </span>
-            <p className="text-white/30 text-[10px] mt-0.5">{unit}</p>
-          </div>
-        </div>
 
-        {/* 金色プログレスバー */}
-        <div className="mt-4">
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-white/30 text-[10px]">
-              {isNewRecord ? "記録更新中！" : `あと ${remain} ${unit} で更新`}
-            </span>
-            <span className="text-amber-400 text-[10px] font-bold">{pct}%</span>
+          {/* 項目名 */}
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-2xl">{emoji}</span>
+            <p className="text-white font-black text-sm">{label}</p>
           </div>
-          <div className="w-full h-2.5 bg-white/10 rounded-full overflow-hidden">
-            <AnimatedHofBar pct={pct} isNewRecord={isNewRecord} />
-          </div>
-        </div>
 
-        {/* 記録更新時の特別メッセージ */}
-        {isNewRecord && (
-          <div className="mt-3 bg-amber-400/20 border border-amber-400/40 rounded-xl px-3 py-2 text-center">
-            <p className="text-amber-300 text-xs font-black animate-pulse">
-              🎊 ALL-TIME RECORD UPDATED!! 🎊
-            </p>
-            <p className="text-amber-400/70 text-[10px] mt-0.5">歴代記録を塗り替えた！！</p>
+          {/* 歴代記録 */}
+          <div className="flex items-end justify-between">
+            <div>
+              <p className="text-white/40 text-[10px] mb-0.5">歴代最高記録</p>
+              <div className="flex items-end gap-1">
+                <span className="text-amber-400 text-3xl font-black leading-none">{record.value}</span>
+                <span className="text-amber-400/70 text-base font-bold pb-0.5">{unit}</span>
+              </div>
+              <p className="text-white/30 text-[10px] mt-0.5">{record.year}年シーズン</p>
+            </div>
+            <div className="text-right">
+              <p className="text-white/40 text-[10px] mb-0.5">2026年 現在</p>
+              <span className={`text-3xl font-black leading-none ${isNewRecord ? "text-amber-400 animate-pulse" : "text-white"}`}>
+                {current}
+              </span>
+              <p className="text-white/30 text-[10px] mt-0.5">{unit}</p>
+            </div>
           </div>
-        )}
+
+          {/* 金色プログレスバー */}
+          <div className="mt-4">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-white/30 text-[10px]">
+                {isNewRecord ? "記録更新中！" : `あと ${remain} ${unit} で更新`}
+              </span>
+              <span className="text-amber-400 text-[10px] font-bold">{pct}%</span>
+            </div>
+            <div className="w-full h-2.5 bg-white/10 rounded-full overflow-hidden">
+              <AnimatedHofBar pct={pct} isNewRecord={isNewRecord} />
+            </div>
+          </div>
+
+          {/* 記録更新時の特別メッセージ */}
+          {isNewRecord && (
+            <div className="mt-3 bg-amber-400/20 border border-amber-400/40 rounded-xl px-3 py-2 text-center">
+              <p className="text-amber-300 text-xs font-black animate-pulse">
+                🎊 ALL-TIME RECORD UPDATED!! 🎊
+              </p>
+              <p className="text-amber-400/70 text-[10px] mt-0.5">歴代記録を塗り替えた！！</p>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* ゴールドフッター */}

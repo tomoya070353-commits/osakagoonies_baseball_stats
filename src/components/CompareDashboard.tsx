@@ -10,10 +10,11 @@ import {
   PolarRadiusAxis,
   ResponsiveContainer,
 } from "recharts";
+import { motion } from "framer-motion";
 import { ChevronDown, Check } from "lucide-react";
 
 const NAVY = "#1e3a5f";
-const RED  = "#dc2626";
+const RED = "#dc2626";
 
 // ── 選手セレクター ─────────────────────────────
 function PlayerSelector({
@@ -127,10 +128,10 @@ export default function CompareDashboard({ players: allPlayers }: CompareDashboa
   const [playerB, setPlayerB] = useState(players[1] ?? players[0]);
 
   const radarData = [
-    { subject: "ミート",   A: playerA.meet,   B: playerB.meet   },
-    { subject: "パワー",   A: playerA.power,  B: playerB.power  },
-    { subject: "走力",     A: playerA.speed,  B: playerB.speed  },
-    { subject: "選球眼",   A: playerA.eye,    B: playerB.eye    },
+    { subject: "ミート", A: playerA.meet, B: playerB.meet },
+    { subject: "パワー", A: playerA.power, B: playerB.power },
+    { subject: "走力", A: playerA.speed, B: playerB.speed },
+    { subject: "選球眼", A: playerA.eye, B: playerB.eye },
     { subject: "勝負強さ", A: playerA.clutch, B: playerB.clutch },
   ];
 
@@ -146,11 +147,34 @@ export default function CompareDashboard({ players: allPlayers }: CompareDashboa
         <p className="text-slate-400 text-sm mt-1">2人の選手を選んで能力を比較</p>
       </div>
 
-      {/* 選手セレクター */}
-      <div className="flex gap-3 items-start">
-        <PlayerSelector players={players} selected={playerA} onSelect={setPlayerA} color={NAVY} label="選手 A" />
-        <div className="flex items-end pb-2 text-slate-300 font-black text-lg">VS</div>
-        <PlayerSelector players={players} selected={playerB} onSelect={setPlayerB} color={RED}  label="選手 B" />
+      {/* 選手セレクター（激突演出） */}
+      <div className="flex gap-3 items-start overflow-hidden py-2">
+        <motion.div
+          className="flex-1"
+          initial={{ x: -60, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+        >
+          <PlayerSelector players={players} selected={playerA} onSelect={setPlayerA} color={NAVY} label="選手 A" />
+        </motion.div>
+
+        <motion.div
+          className="flex items-end pb-2 text-slate-300 font-black text-lg origin-center"
+          initial={{ scale: 1.8, y: -20, opacity: 0 }}
+          animate={{ scale: 1, y: 0, opacity: 1 }}
+          transition={{ duration: 0.5, type: "spring", stiffness: 200, delay: 0.2 }}
+        >
+          VS
+        </motion.div>
+
+        <motion.div
+          className="flex-1"
+          initial={{ x: 60, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+        >
+          <PlayerSelector players={players} selected={playerB} onSelect={setPlayerB} color={RED} label="選手 B" />
+        </motion.div>
       </div>
 
       {/* VSレーダーチャート */}
@@ -205,14 +229,14 @@ export default function CompareDashboard({ players: allPlayers }: CompareDashboa
         </div>
         {/* 各スタッツ行 */}
         <div className="px-4">
-          <CompareRow label="打率"   valA={playerA.avg}        valB={playerB.avg}        format={(v) => v.toFixed(3).replace(/^0/, "")} />
-          <CompareRow label="OPS"    valA={playerA.ops}        valB={playerB.ops}        format={(v) => v.toFixed(3).replace(/^0/, "")} />
-          <CompareRow label="本塁打" valA={playerA.homeRuns}   valB={playerB.homeRuns}   format={(v) => `${v}本`} />
-          <CompareRow label="打点"   valA={playerA.rbi}        valB={playerB.rbi}        format={(v) => `${v}`} />
-          <CompareRow label="安打"   valA={playerA.hits}       valB={playerB.hits}       format={(v) => `${v}`} />
-          <CompareRow label="盗塁"   valA={playerA.stolenBases} valB={playerB.stolenBases} format={(v) => `${v}`} />
-          <CompareRow label="四球"   valA={playerA.walks}      valB={playerB.walks}      format={(v) => `${v}`} />
-          <CompareRow label="三振率" valA={playerA.kRate}      valB={playerB.kRate}      format={(v) => `${(v * 100).toFixed(1)}%`} higherIsBetter={false} />
+          <CompareRow label="打率" valA={playerA.avg} valB={playerB.avg} format={(v) => v.toFixed(3).replace(/^0/, "")} />
+          <CompareRow label="OPS" valA={playerA.ops} valB={playerB.ops} format={(v) => v.toFixed(3).replace(/^0/, "")} />
+          <CompareRow label="本塁打" valA={playerA.homeRuns} valB={playerB.homeRuns} format={(v) => `${v}本`} />
+          <CompareRow label="打点" valA={playerA.rbi} valB={playerB.rbi} format={(v) => `${v}`} />
+          <CompareRow label="安打" valA={playerA.hits} valB={playerB.hits} format={(v) => `${v}`} />
+          <CompareRow label="盗塁" valA={playerA.stolenBases} valB={playerB.stolenBases} format={(v) => `${v}`} />
+          <CompareRow label="四球" valA={playerA.walks} valB={playerB.walks} format={(v) => `${v}`} />
+          <CompareRow label="三振率" valA={playerA.kRate} valB={playerB.kRate} format={(v) => `${(v * 100).toFixed(1)}%`} higherIsBetter={false} />
         </div>
       </div>
     </div>
