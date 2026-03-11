@@ -1,6 +1,7 @@
 "use client";
 
 import type { PlayerStats } from "@/types";
+import { motion } from "framer-motion";
 
 const toRad = (d: number) => (d * Math.PI) / 180;
 const pt = (cx: number, cy: number, r: number, deg: number) => ({
@@ -34,8 +35,8 @@ function annularSector(
 export default function DirectionChart({ player }: { player: PlayerStats }) {
   const { pullHits, centerHits, oppositeHits } = player;
   const total = pullHits + centerHits + oppositeHits;
-  const pullRate    = total > 0 ? pullHits    / total : 0;
-  const centerRate  = total > 0 ? centerHits  / total : 0;
+  const pullRate = total > 0 ? pullHits / total : 0;
+  const centerRate = total > 0 ? centerHits / total : 0;
   const oppositeRate = total > 0 ? oppositeHits / total : 0;
 
   // SVG layout
@@ -43,10 +44,10 @@ export default function DirectionChart({ player }: { player: PlayerStats }) {
   const rOut = 168;
   const rInfield = 60;
 
-  const A_LEFT_FOUL   = 218;
+  const A_LEFT_FOUL = 218;
   const A_LC_BOUNDARY = 252;
   const A_CR_BOUNDARY = 288;
-  const A_RIGHT_FOUL  = 322;
+  const A_RIGHT_FOUL = 322;
 
   // グリーン系グラデーション（rate高=濃い緑、rate低=薄い緑）
   const zoneNavy = (rate: number) => {
@@ -57,28 +58,28 @@ export default function DirectionChart({ player }: { player: PlayerStats }) {
   };
 
   const ZONES = [
-    { label: "レフト",   rate: pullRate,     count: pullHits,     a1: A_LEFT_FOUL,   a2: A_LC_BOUNDARY },
-    { label: "センター", rate: centerRate,   count: centerHits,   a1: A_LC_BOUNDARY, a2: A_CR_BOUNDARY },
-    { label: "ライト",   rate: oppositeRate, count: oppositeHits, a1: A_CR_BOUNDARY, a2: A_RIGHT_FOUL  },
+    { label: "レフト", rate: pullRate, count: pullHits, a1: A_LEFT_FOUL, a2: A_LC_BOUNDARY },
+    { label: "センター", rate: centerRate, count: centerHits, a1: A_LC_BOUNDARY, a2: A_CR_BOUNDARY },
+    { label: "ライト", rate: oppositeRate, count: oppositeHits, a1: A_CR_BOUNDARY, a2: A_RIGHT_FOUL },
   ];
 
   const zoneColors = ZONES.map(z => zoneNavy(z.rate));
 
-  const leftPole  = pt(cx, cy, rOut, A_LEFT_FOUL);
+  const leftPole = pt(cx, cy, rOut, A_LEFT_FOUL);
   const rightPole = pt(cx, cy, rOut, A_RIGHT_FOUL);
 
   const baseR = 48;
-  const home   = { x: cx, y: cy };
-  const first  = pt(cx, cy, baseR, 313);
+  const home = { x: cx, y: cy };
+  const first = pt(cx, cy, baseR, 313);
   const second = pt(cx, cy, 60, 270);
-  const third  = pt(cx, cy, baseR, 227);
+  const third = pt(cx, cy, baseR, 227);
   const pitcher = pt(cx, cy, 36, 270);
 
   const labelR = 115;
   const lp = [
-    pt(cx, cy, labelR, (A_LEFT_FOUL   + A_LC_BOUNDARY) / 2),
+    pt(cx, cy, labelR, (A_LEFT_FOUL + A_LC_BOUNDARY) / 2),
     pt(cx, cy, labelR, (A_LC_BOUNDARY + A_CR_BOUNDARY) / 2),
-    pt(cx, cy, labelR, (A_CR_BOUNDARY + A_RIGHT_FOUL)  / 2),
+    pt(cx, cy, labelR, (A_CR_BOUNDARY + A_RIGHT_FOUL) / 2),
   ];
 
   const BASE_SIZE = 7;
@@ -86,7 +87,11 @@ export default function DirectionChart({ player }: { player: PlayerStats }) {
   return (
     <div>
       <h2 className="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-3">打球方向</h2>
-      <div className="rounded-2xl bg-white border border-slate-200 shadow-sm p-3">
+      <motion.div
+        whileHover={{ scale: 1.02, y: -2 }}
+        transition={{ duration: 0.2 }}
+        className="rounded-2xl bg-white border border-slate-200 shadow-sm p-3"
+      >
         <svg viewBox="0 0 280 210" className="w-full">
           {/* 背景（ライトグリーン） */}
           <rect width="280" height="210" fill="#f0fdf4" rx="8" />
@@ -114,7 +119,7 @@ export default function DirectionChart({ player }: { player: PlayerStats }) {
           <circle cx={cx} cy={cy} r={rInfield} fill="#d1fae5" />
 
           {/* ファウルライン */}
-          <line x1={cx} y1={cy} x2={leftPole.x.toFixed(1)}  y2={leftPole.y.toFixed(1)}  stroke="rgba(0,0,0,0.18)" strokeWidth="1" />
+          <line x1={cx} y1={cy} x2={leftPole.x.toFixed(1)} y2={leftPole.y.toFixed(1)} stroke="rgba(0,0,0,0.18)" strokeWidth="1" />
           <line x1={cx} y1={cy} x2={rightPole.x.toFixed(1)} y2={rightPole.y.toFixed(1)} stroke="rgba(0,0,0,0.18)" strokeWidth="1" />
 
           {/* 外野フェンス弧 */}
@@ -214,7 +219,7 @@ export default function DirectionChart({ player }: { player: PlayerStats }) {
         ) : (
           <p className="text-center text-slate-300 text-xs mt-2">打球方向データなし</p>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 }

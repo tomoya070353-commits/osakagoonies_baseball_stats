@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { motion } from "framer-motion";
 import type { PlayerStats } from "@/types";
 import { MapPin, Hash, ChevronDown, Check } from "lucide-react";
 
@@ -26,7 +27,13 @@ export default function PlayerHeader({ player, players, onSelect }: PlayerHeader
   }, []);
 
   return (
-    <div className="relative px-5 pt-8 pb-6 overflow-visible" ref={ref}>
+    <motion.div
+      className="relative px-5 pt-8 pb-6 overflow-visible"
+      ref={ref}
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.4, ease: "easeOut" as const }}
+    >
       {/* 背景グラデーション */}
       <div className="absolute inset-0 bg-gradient-to-b from-[#1e3a5f]/10 via-transparent to-transparent pointer-events-none" />
 
@@ -83,16 +90,14 @@ export default function PlayerHeader({ player, players, onSelect }: PlayerHeader
                     onSelect(p);
                     setIsOpen(false);
                   }}
-                  className={`w-full flex items-center justify-between px-4 py-3 text-left transition-colors ${
-                    isSelected
+                  className={`w-full flex items-center justify-between px-4 py-3 text-left transition-colors ${isSelected
                       ? "bg-[#1e3a5f]/5 text-[#1e3a5f]"
                       : "hover:bg-slate-50 text-slate-700"
-                  } active:bg-slate-100`}
+                    } active:bg-slate-100`}
                 >
                   <div className="flex items-center gap-3">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
-                      isSelected ? "bg-[#1e3a5f] text-white" : "bg-slate-100 text-slate-500"
-                    }`}>
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${isSelected ? "bg-[#1e3a5f] text-white" : "bg-slate-100 text-slate-500"
+                      }`}>
                       {p.name.charAt(0)}
                     </div>
                     <div>
@@ -112,6 +117,6 @@ export default function PlayerHeader({ player, players, onSelect }: PlayerHeader
           </div>
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }
