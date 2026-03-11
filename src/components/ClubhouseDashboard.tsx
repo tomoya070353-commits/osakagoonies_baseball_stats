@@ -11,6 +11,8 @@ import SwotDashboard from "@/components/SwotDashboard";
 import LineupSimulator from "@/components/LineupSimulator"; // Added import for LineupSimulator
 import AmidakujiDashboard from "@/components/AmidakujiDashboard"; // Added import for Amidakuji
 import WeeklyRivalMatchup from "@/components/WeeklyRivalMatchup"; // Added import for Rival Matchup
+import MonthlyAwards from "@/components/MonthlyAwards";
+import { calculateMonthlyAwards } from "@/lib/monthly-awards";
 import { ChevronRight, Shield, Shuffle } from "lucide-react"; // Added Icons
 
 type SubView = null | "compare" | "salary" | "milestone" | "swot" | "lineup" | "amida"; // Updated SubView type
@@ -106,6 +108,8 @@ function MenuCard({ title, subtitle, icon, onClick, color, badge }: MenuCardProp
 export default function ClubhouseDashboard({ players, pitchers, teamStats, teamHistory }: ClubhouseDashboardProps) {
   const [subView, setSubView] = useState<"compare" | "salary" | "milestone" | "swot" | "lineup" | "amida" | null>(null);
 
+  const monthlyAwardsData = calculateMonthlyAwards(players);
+
   if (subView === "milestone") {
     return (
       <div>
@@ -169,6 +173,10 @@ export default function ClubhouseDashboard({ players, pitchers, teamStats, teamH
 
       <motion.div {...stagger(0.5)} className="-mx-5 sm:mx-0">
         <WeeklyRivalMatchup players={players} />
+      </motion.div>
+
+      <motion.div {...stagger(0.6)} className="-mx-5 sm:mx-0 px-5 sm:px-0">
+        <MonthlyAwards data={monthlyAwardsData} />
       </motion.div>
 
       <div className="flex flex-col gap-3">
