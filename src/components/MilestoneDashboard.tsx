@@ -27,7 +27,7 @@ function stagger(i: number) {
     variants: fadeUp,
     initial: "hidden",
     animate: "visible",
-    transition: { duration: 0.4, ease: "easeOut", delay: i * 0.1 } as any
+    transition: { duration: 0.4, ease: "easeOut" as const, delay: i * 0.1 }
   };
 }
 
@@ -43,7 +43,7 @@ function Bar({ pct, hot }: { pct: number; hot: boolean }) {
           }`}
         initial={{ width: 0 }}
         animate={{ width: inView ? `${Math.min(pct, 100)}%` : 0 }}
-        transition={{ duration: 1, ease: "easeOut", delay: 0.1 }}
+        transition={{ duration: 1, ease: "easeOut" as const, delay: 0.1 }}
       />
     </div>
   );
@@ -112,7 +112,7 @@ function AnimatedHofBar({ pct, isNewRecord }: { pct: number; isNewRecord: boolea
         className={`h-full rounded-full ${isNewRecord ? "animate-pulse" : ""}`}
         initial={{ width: 0 }}
         animate={{ width: inView ? `${Math.min(pct, 100)}%` : 0 }}
-        transition={{ duration: 1.2, ease: "easeOut", delay: 0.2 }}
+        transition={{ duration: 1.2, ease: "easeOut" as const, delay: 0.2 }}
         style={{
           background: isNewRecord
             ? "linear-gradient(90deg, #f59e0b, #fde68a, #fffbeb)"

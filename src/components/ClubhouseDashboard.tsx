@@ -60,7 +60,7 @@ function stagger(i: number) {
     variants: fadeUp,
     initial: "hidden",
     animate: "visible",
-    transition: { duration: 0.4, ease: "easeOut", delay: i * 0.08 } as any
+    transition: { duration: 0.4, ease: "easeOut" as const, delay: i * 0.08 }
   };
 }
 

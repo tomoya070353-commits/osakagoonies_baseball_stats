@@ -15,11 +15,11 @@ interface TeamDashboardProps {
 
 // ── アニメーション設定 ──────────────────────────────────────────
 const fadeUp = {
-  hidden:  { opacity: 0, y: 24 },
+  hidden: { opacity: 0, y: 24 },
   visible: { opacity: 1, y: 0 },
 };
 function stagger(i: number) {
-  return { transition: { duration: 0.45, ease: "easeOut", delay: i * 0.1 } };
+  return { transition: { duration: 0.45, ease: "easeOut" as const, delay: i * 0.1 } };
 }
 
 // ── カウントアップ Hook ────────────────────────────────────────
@@ -29,7 +29,7 @@ function useCountUp(target: number, duration = 1000): number {
   useEffect(() => {
     if (ref.current) return;
     ref.current = true;
-    const start   = performance.now();
+    const start = performance.now();
     const tick = (now: number) => {
       const t = Math.min((now - start) / duration, 1);
       const ease = 1 - Math.pow(1 - t, 3); // easeOutCubic
@@ -43,7 +43,7 @@ function useCountUp(target: number, duration = 1000): number {
 
 // ── アニメーション付きプログレスバー ──────────────────────────
 function AnimatedBar({ pct, className = "bg-white" }: { pct: number; className?: string }) {
-  const ref    = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true });
   return (
     <div ref={ref} className="w-full h-2 bg-white/20 rounded-full overflow-hidden">
@@ -51,7 +51,7 @@ function AnimatedBar({ pct, className = "bg-white" }: { pct: number; className?:
         className={`h-full rounded-full ${className}`}
         initial={{ width: 0 }}
         animate={{ width: inView ? `${pct * 100}%` : 0 }}
-        transition={{ duration: 1, ease: "easeOut" }}
+        transition={{ duration: 1, ease: "easeOut" as const }}
       />
     </div>
   );
@@ -70,11 +70,11 @@ function MiniCard({ label, value, sub }: { label: string; value: string; sub?: s
 
 // ── WinLossCard（アニメーション付き） ─────────────────────────
 function WinLossCard({ stats }: { stats: TeamSeasonStats }) {
-  const wins   = useCountUp(stats.wins,   900);
+  const wins = useCountUp(stats.wins, 900);
   const losses = useCountUp(stats.losses, 900);
-  const runs   = useCountUp(stats.runs,   950);
-  const ra     = useCountUp(stats.runsAllowed, 950);
-  const diff   = runs - ra;
+  const runs = useCountUp(stats.runs, 950);
+  const ra = useCountUp(stats.runsAllowed, 950);
+  const diff = runs - ra;
   const winPct = stats.winRate.toFixed(3).replace(/^0/, "");
 
   return (
@@ -136,8 +136,8 @@ export default function TeamDashboard({ players, teamStats }: TeamDashboardProps
 
   const teamAggregate = {
     grounders: players.reduce((s, p) => s + p.grounders, 0),
-    flies:     players.reduce((s, p) => s + p.flies, 0),
-    liners:    players.reduce((s, p) => s + p.liners, 0),
+    flies: players.reduce((s, p) => s + p.flies, 0),
+    liners: players.reduce((s, p) => s + p.liners, 0),
   } as PlayerStats;
 
   return (
@@ -169,9 +169,9 @@ export default function TeamDashboard({ players, teamStats }: TeamDashboardProps
           <motion.div className="px-5" variants={fadeUp} initial="hidden" animate="visible" {...stagger(3)}>
             <p className="text-slate-400 text-[10px] font-semibold uppercase tracking-wider mb-2">打撃成績</p>
             <div className="grid grid-cols-3 gap-2">
-              <MiniCard label="打率"   value={teamStats.avg.toFixed(3).replace(/^0/, "")} />
+              <MiniCard label="打率" value={teamStats.avg.toFixed(3).replace(/^0/, "")} />
               <MiniCard label="本塁打" value={`${teamStats.homeRuns}`} sub="本" />
-              <MiniCard label="盗塁"   value={`${teamStats.stolenBases}`} sub="個" />
+              <MiniCard label="盗塁" value={`${teamStats.stolenBases}`} sub="個" />
             </div>
           </motion.div>
 
@@ -180,7 +180,7 @@ export default function TeamDashboard({ players, teamStats }: TeamDashboardProps
             <p className="text-slate-400 text-[10px] font-semibold uppercase tracking-wider mb-2">投手成績</p>
             <div className="grid grid-cols-2 gap-2">
               <MiniCard label="防御率" value={teamStats.era.toFixed(2)} />
-              <MiniCard label="失点"   value={`${teamStats.runsAllowed}`} sub="点" />
+              <MiniCard label="失点" value={`${teamStats.runsAllowed}`} sub="点" />
             </div>
           </motion.div>
         </>

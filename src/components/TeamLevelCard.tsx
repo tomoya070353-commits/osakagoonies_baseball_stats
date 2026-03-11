@@ -10,16 +10,16 @@ interface TeamLevelCardProps {
 
 // ── レベル定義テーブル ─────────────────────────────────────────
 const LEVELS = [
-  { lv: 1,  expMin: 0,    expMax: 299,  title: "まだまだひよっこ",          stars: 1 },
-  { lv: 2,  expMin: 300,  expMax: 599,  title: "新進気鋭の若駒",            stars: 1 },
-  { lv: 3,  expMin: 600,  expMax: 999,  title: "浪速の挑戦者",              stars: 2 },
-  { lv: 4,  expMin: 1000, expMax: 1499, title: "浪速のダークホース",        stars: 2 },
-  { lv: 5,  expMin: 1500, expMax: 2099, title: "大阪の猛者",                stars: 3 },
-  { lv: 6,  expMin: 2100, expMax: 2799, title: "関西の強豪",                stars: 3 },
-  { lv: 7,  expMin: 2800, expMax: 3599, title: "西の鉄砲玉",                stars: 4 },
-  { lv: 8,  expMin: 3600, expMax: 4499, title: "伝説への序章",              stars: 4 },
-  { lv: 9,  expMin: 4500, expMax: 5499, title: "覇王への道",                stars: 5 },
-  { lv: 10, expMin: 5500, expMax: 9999, title: "🔥 大阪グニーズ覇王 🔥",   stars: 5 },
+  { lv: 1, expMin: 0, expMax: 299, title: "まだまだひよっこ", stars: 1 },
+  { lv: 2, expMin: 300, expMax: 599, title: "新進気鋭の若駒", stars: 1 },
+  { lv: 3, expMin: 600, expMax: 999, title: "浪速の挑戦者", stars: 2 },
+  { lv: 4, expMin: 1000, expMax: 1499, title: "浪速のダークホース", stars: 2 },
+  { lv: 5, expMin: 1500, expMax: 2099, title: "大阪の猛者", stars: 3 },
+  { lv: 6, expMin: 2100, expMax: 2799, title: "関西の強豪", stars: 3 },
+  { lv: 7, expMin: 2800, expMax: 3599, title: "西の鉄砲玉", stars: 4 },
+  { lv: 8, expMin: 3600, expMax: 4499, title: "伝説への序章", stars: 4 },
+  { lv: 9, expMin: 4500, expMax: 5499, title: "覇王への道", stars: 5 },
+  { lv: 10, expMin: 5500, expMax: 9999, title: "🔥 大阪グニーズ覇王 🔥", stars: 5 },
 ];
 
 function calcExp(stats: TeamSeasonStats): number {
@@ -41,8 +41,8 @@ function useCountUp(target: number, duration = 1200): number {
     if (ran.current) return;
     ran.current = true;
     const start = performance.now();
-    const tick  = (now: number) => {
-      const t    = Math.min((now - start) / duration, 1);
+    const tick = (now: number) => {
+      const t = Math.min((now - start) / duration, 1);
       const ease = 1 - Math.pow(1 - t, 3);
       setVal(Math.round(ease * target));
       if (t < 1) requestAnimationFrame(tick);
@@ -55,17 +55,17 @@ function useCountUp(target: number, duration = 1200): number {
 export default function TeamLevelCard({ teamStats }: TeamLevelCardProps) {
   if (!teamStats) return null;
 
-  const exp       = calcExp(teamStats);
+  const exp = calcExp(teamStats);
   const levelData = getLevelData(exp);
   const nextLevel = LEVELS.find((l) => l.lv === levelData.lv + 1);
 
-  const expInLevel  = exp - levelData.expMin;
-  const expNeeded   = nextLevel ? nextLevel.expMin - levelData.expMin : levelData.expMax - levelData.expMin;
-  const pct         = nextLevel ? Math.min((expInLevel / expNeeded) * 100, 100) : 100;
-  const isMaxLevel  = !nextLevel;
+  const expInLevel = exp - levelData.expMin;
+  const expNeeded = nextLevel ? nextLevel.expMin - levelData.expMin : levelData.expMax - levelData.expMin;
+  const pct = nextLevel ? Math.min((expInLevel / expNeeded) * 100, 100) : 100;
+  const isMaxLevel = !nextLevel;
 
   // カウントアップ
-  const animLv  = useCountUp(levelData.lv, 800);
+  const animLv = useCountUp(levelData.lv, 800);
   const animExp = useCountUp(exp, 1200);
 
   // EXPバーのinView
@@ -122,7 +122,7 @@ export default function TeamLevelCard({ teamStats }: TeamLevelCardProps) {
               className="h-full rounded-full"
               initial={{ width: 0 }}
               animate={{ width: inView ? `${pct}%` : 0 }}
-              transition={{ duration: 1.2, ease: "easeOut" }}
+              transition={{ duration: 1.2, ease: "easeOut" as const }}
               style={{
                 background: "linear-gradient(90deg, #f59e0b, #fbbf24, #fde68a)",
                 boxShadow: "0 0 8px rgba(251,191,36,0.6)",
