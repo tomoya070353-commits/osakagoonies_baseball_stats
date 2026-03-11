@@ -1,6 +1,6 @@
 import type { PlayerStats } from "@/types";
 
-type PartialStats = Omit<PlayerStats, "meet" | "power" | "speed" | "eye" | "clutch" | "trajectory">;
+type PartialStats = Omit<PlayerStats, "meet" | "power" | "speed" | "eye" | "clutch" | "trajectory" | "hittingStreak" | "onBaseStreak">;
 
 /**
  * 0〜100 にクランプ
@@ -75,9 +75,9 @@ export function calcPowerProStats(
  */
 export function enhanceAllPlayers(
   partials: PartialStats[]
-): PlayerStats[] {
+): Omit<PlayerStats, "hittingStreak" | "onBaseStreak">[] {
   return partials.map((partial) => {
     const powerPro = calcPowerProStats(partial, partials);
-    return { ...partial, ...powerPro } as PlayerStats;
+    return { ...partial, ...powerPro } as Omit<PlayerStats, "hittingStreak" | "onBaseStreak">;
   });
 }

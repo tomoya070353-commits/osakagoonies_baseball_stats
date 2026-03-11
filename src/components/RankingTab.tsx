@@ -5,6 +5,26 @@ import { motion, useInView } from "framer-motion";
 import type { PlayerStats } from "@/types";
 import { ChevronRight } from "lucide-react";
 
+// 連続記録（ストリーク）の炎アイコン表示
+function StreakIndicator({ player }: { player: PlayerStats }) {
+  if (player.hittingStreak > 1 || player.onBaseStreak > 1) {
+    const title = player.hittingStreak > 1 
+      ? `${player.hittingStreak}試合連続安打` 
+      : `${player.onBaseStreak}試合連続出塁`;
+    return (
+      <motion.span 
+        className="ml-1 text-[11px] inline-block" 
+        title={title}
+        animate={{ rotate: [-5, 5, -5], scale: [1, 1.1, 1] }}
+        transition={{ repeat: Infinity, duration: 0.6 }}
+      >
+        🔥
+      </motion.span>
+    );
+  }
+  return null;
+}
+
 interface RankingTabProps {
   players: PlayerStats[];
   onDrillDown: (player: PlayerStats) => void;
@@ -236,10 +256,13 @@ function RankingCard({
                 </div>
 
                 {/* 選手名 */}
-                <div className="flex-1 text-left min-w-0 relative z-10">
-                  <p className={`font-semibold text-sm truncate ${MEDAL_num[i]}`}>
-                    {player.name}
-                  </p>
+                <div className="flex-1 text-left min-w-0 relative z-10 flex flex-col justify-center">
+                  <div className="flex items-center">
+                    <p className={`font-semibold text-sm truncate ${MEDAL_num[i]}`}>
+                      {player.name}
+                    </p>
+                    <StreakIndicator player={player} />
+                  </div>
                   <p className="text-slate-400/80 text-[10px] uppercase font-bold tracking-wider">{player.mostFrequentPosition}</p>
                 </div>
 

@@ -2,6 +2,7 @@
 
 import { loadPlayerData, aggregatePlayer } from "@/lib/csv-parser";
 import { enhanceAllPlayers } from "@/lib/powerpro";
+import { fetchAndCalculateStreaks } from "@/lib/streak";
 import type { PlayerStats } from "@/types";
 
 export async function getPlayersData(): Promise<PlayerStats[]> {
@@ -14,9 +15,17 @@ export async function getPlayersData(): Promise<PlayerStats[]> {
   );
 
   // 3. パワプロ指標を付与して補完
-  const enhanced = enhanceAllPlayers(partials);
+  const enhanced = enhanceAllPlayers(partials) as PlayerStats[];
 
-  // 4. 打率降順でソート
+  // 4. ストリーク（連続記録）情報を取得してマージ
+  const streakMap = await fetchAndCalculateStreaks();
+  for (const player of enhanced) {
+    const streak = streakMap.get(player.name);
+    player.hittingStreak = streak?.hittingStreak ?? 0;
+    player.onBaseStreak = streak?.onBaseStreak ?? 0;
+  }
+
+  // 5. 打率降順でソート
   enhanced.sort((a, b) => b.avg - a.avg);
 
   return enhanced;

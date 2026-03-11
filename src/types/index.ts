@@ -81,6 +81,9 @@ export interface PlayerStats {
   eye: number;     // 選球眼 0-100
   clutch: number;  // 勝負強さ 0-100
   trajectory: number; // 弾道 1-4
+  // 連続記録
+  hittingStreak: number;
+  onBaseStreak: number;
   // 打順・守備（最頻値）
   mostFrequentPosition: string;
   mostFrequentOrder: string;

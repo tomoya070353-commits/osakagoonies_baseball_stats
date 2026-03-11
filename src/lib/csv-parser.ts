@@ -85,7 +85,7 @@ function mostFrequent(arr: string[]): string {
 /**
  * PlayerStats を計算する（パワプロ指標はstats.ts側で上書き）
  */
-export function aggregatePlayer(name: string, games: GameRecord[]): Omit<PlayerStats, "meet" | "power" | "speed" | "eye" | "clutch" | "trajectory"> {
+export function aggregatePlayer(name: string, games: GameRecord[]): Omit<PlayerStats, "meet" | "power" | "speed" | "eye" | "clutch" | "trajectory" | "hittingStreak" | "onBaseStreak"> {
   let plateAppearances = 0;
   let atBatCount = 0;
   let hits = 0, singles = 0, doubles = 0, triples = 0, homeRuns = 0;
