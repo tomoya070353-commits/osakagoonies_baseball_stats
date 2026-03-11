@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { PlayerStats } from "@/types";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Check } from "lucide-react";
 
 interface SwotDashboardProps {
@@ -179,10 +179,18 @@ const THEMES = {
   T: { bg: "bg-amber-50", border: "border-amber-200", badge: "bg-amber-500 text-white", text: "text-slate-700" },
 };
 
+// ── 総合判定ロジック ──────────────────────────────────────────
+function getOverallGrade(p: PlayerStats) {
+  if (p.ops >= 0.900) return { grade: "S", label: "超一流・アンタッチャブル", color: "text-amber-500", border: "border-amber-500", bg: "bg-amber-500" };
+  if (p.ops >= 0.800) return { grade: "A", label: "優秀・コアプレーヤー", color: "text-[#1e3a5f]", border: "border-[#1e3a5f]", bg: "bg-[#1e3a5f]" };
+  if (p.ops >= 0.700) return { grade: "B", label: "標準・ローテーション", color: "text-emerald-600", border: "border-emerald-600", bg: "bg-emerald-600" };
+  return { grade: "C", label: "要改善・伸びしろあり", color: "text-slate-500", border: "border-slate-500", bg: "bg-slate-500" };
+}
+
 // ── 選手セレクター ────────────────────────────────────────────
 function PlayerSelect({ players, selected, onSelect }: {
   players: PlayerStats[];
-  selected: PlayerStats;
+  selected: PlayerStats | null;
   onSelect: (p: PlayerStats) => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -192,13 +200,13 @@ function PlayerSelect({ players, selected, onSelect }: {
         onClick={() => setOpen((o) => !o)}
         className="w-full flex items-center justify-between px-4 py-3 rounded-xl border-2 border-[#1e3a5f] bg-white"
       >
-        <span className="font-bold text-[#1e3a5f] text-sm">{selected.name}</span>
+        <span className="font-bold text-[#1e3a5f] text-sm">{selected ? selected.name : "選択してください"}</span>
         <ChevronDown size={14} className={`text-[#1e3a5f] transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
       {open && (
         <div className="absolute top-full left-0 right-0 mt-1 z-50 bg-white rounded-xl shadow-xl border border-slate-200 max-h-52 overflow-y-auto">
           {players.map((p) => {
-            const s = p.name === selected.name;
+            const s = selected && p.name === selected.name;
             return (
               <button
                 key={p.name}
@@ -219,8 +227,10 @@ function PlayerSelect({ players, selected, onSelect }: {
 // ── メイン ──────────────────────────────────────────────────
 export default function SwotDashboard({ players }: SwotDashboardProps) {
   const filtered = players.filter((p) => !p.name.includes("助っ人"));
-  const [selected, setSelected] = useState(filtered[0]);
-  const { strengths, weaknesses, opportunities, threats } = getSwot(selected);
+  const [selected, setSelected] = useState<PlayerStats | null>(null);
+
+  const swotData = selected ? getSwot(selected) : null;
+  const overallGrade = selected ? getOverallGrade(selected) : null;
 
   return (
     <div className="flex flex-col gap-5 px-5 py-4 pb-8">
@@ -248,33 +258,77 @@ export default function SwotDashboard({ players }: SwotDashboardProps) {
         <PlayerSelect players={filtered} selected={selected} onSelect={setSelected} />
       </div>
 
-      {/* エグゼクティブサマリー */}
-      <div className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1">
-          Executive Summary
-        </p>
-        <p className="text-slate-600 text-xs leading-relaxed">
-          本レポートは <span className="font-bold text-[#1e3a5f]">{selected.name}</span> 選手のFY2026シーズンにおける打撃スタッツを多角的に分析し、
-          当該選手のバリュードライバーおよびリスクファクターを可視化することを目的とする。
-          打率 <span className="font-bold">{selected.avg.toFixed(3).replace(/^0/, "")}</span>、
-          OPS <span className="font-bold">{selected.ops.toFixed(3).replace(/^0/, "")}</span>、
-          本塁打 <span className="font-bold">{selected.homeRuns}本</span>。
-          以下のSWOT分析は当社独自のフレームワークに基づき、データドリブンで策定された。
-        </p>
-      </div>
+      <AnimatePresence mode="wait">
+        {!selected ? (
+          <motion.div
+            key="placeholder"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            className="flex flex-col items-center justify-center py-20 px-5 text-center bg-white border border-dashed border-slate-300 rounded-2xl"
+          >
+            <span className="text-4xl mb-3">⚠️</span>
+            <p className="text-slate-600 font-bold mb-1">選手を選択してください</p>
+            <p className="text-slate-400 text-xs">診断レポートを生成するには、上のドロップダウンから対象者を選んでください。</p>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="report"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="flex flex-col gap-5"
+          >
+            <div className="relative">
+              {/* 総合判定 ドンッ！スタンプ */}
+              <motion.div
+                className={`absolute -top-12 -right-2 md:right-4 z-20 flex flex-col items-center justify-center w-24 h-24 rounded-full border-4 ${overallGrade!.border} bg-white shadow-xl rotate-[15deg]`}
+                initial={{ scale: 3, opacity: 0, rotate: 0 }}
+                animate={{ scale: 1, opacity: 1, rotate: 15 }}
+                transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.8 }}
+              >
+                <div className={`text-[10px] font-black uppercase tracking-widest ${overallGrade!.color}`}>総合判定</div>
+                <div className={`text-4xl font-black leading-none ${overallGrade!.color}`}>{overallGrade!.grade}</div>
+                <div className={`text-[8px] font-bold mt-0.5 ${overallGrade!.color}`}>{overallGrade!.label.split("・")[0]}</div>
+              </motion.div>
 
-      {/* SWOT 2×2グリッド */}
-      <div className="grid grid-cols-2 gap-3">
-        <QuadrantCard id="S" label="Strengths（強み）" items={strengths} theme={THEMES.S} />
-        <QuadrantCard id="W" label="Weaknesses（弱み）" items={weaknesses} theme={THEMES.W} />
-        <QuadrantCard id="O" label="Opportunities（機会）" items={opportunities} theme={THEMES.O} />
-        <QuadrantCard id="T" label="Threats（脅威）" items={threats} theme={THEMES.T} />
-      </div>
+              {/* エグゼクティブサマリー */}
+              <div className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 relative z-10">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1">
+                  Executive Summary
+                </p>
+                <p className="text-slate-600 text-xs leading-relaxed">
+                  本レポートは <span className="font-bold text-[#1e3a5f]">{selected.name}</span> 選手のFY2026シーズンにおける打撃スタッツを多角的に分析し、
+                  当該選手のバリュードライバーおよびリスクファクターを可視化することを目的とする。
+                  打率 <span className="font-bold">{selected.avg.toFixed(3).replace(/^0/, "")}</span>、
+                  OPS <span className="font-bold">{selected.ops.toFixed(3).replace(/^0/, "")}</span>、
+                  本塁打 <span className="font-bold">{selected.homeRuns}本</span>。
+                  以下のSWOT分析は当社独自のフレームワークに基づき、データドリブンで策定された。
+                </p>
+              </div>
+            </div>
 
-      {/* 免責 */}
-      <p className="text-slate-300 text-[9px] text-center leading-relaxed">
-        本レポートはあくまで遊び目的で作成されたものであり、実際の選手評価・契約交渉等への使用を一切保証するものではありません。Gunies Consulting Group © 2026
-      </p>
+            {/* SWOT 2×2グリッド */}
+            <motion.div
+              className="grid grid-cols-2 gap-3"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+            >
+              <QuadrantCard id="S" label="Strengths（強み）" items={swotData!.strengths} theme={THEMES.S} />
+              <QuadrantCard id="W" label="Weaknesses（弱み）" items={swotData!.weaknesses} theme={THEMES.W} />
+              <QuadrantCard id="O" label="Opportunities（機会）" items={swotData!.opportunities} theme={THEMES.O} />
+              <QuadrantCard id="T" label="Threats（脅威）" items={swotData!.threats} theme={THEMES.T} />
+            </motion.div>
+
+            {/* 免責 */}
+            <p className="text-slate-300 text-[9px] text-center leading-relaxed">
+              本レポートはあくまで遊び目的で作成されたものであり、実際の選手評価・契約交渉等への使用を一切保証するものではありません。Gunies Consulting Group © 2026
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
