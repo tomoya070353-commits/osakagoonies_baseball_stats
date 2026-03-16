@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
 import type { PlayerStats } from "@/types";
 import { ChevronRight } from "lucide-react";
@@ -16,7 +16,7 @@ function StreakIndicator({ player }: { player: PlayerStats }) {
         className="ml-1 text-[11px] inline-block" 
         title={title}
         animate={{ rotate: [-5, 5, -5], scale: [1, 1.1, 1] }}
-        transition={{ repeat: Infinity, duration: 0.6 }}
+        transition={{ type: "tween", repeat: Infinity, duration: 0.6 }}
       >
         🔥
       </motion.span>
@@ -59,9 +59,10 @@ interface RankingCategory {
   getValue: (p: PlayerStats) => number;
   format: (v: number) => string;
   unit?: string;
+  asc?: boolean; // 昇順（数値が低い方が上位）かどうか
 }
 
-const CATEGORIES: RankingCategory[] = [
+const BATTER_CATEGORIES: RankingCategory[] = [
   {
     label: "打率",
     icon: "🎯",
@@ -111,6 +112,62 @@ const CATEGORIES: RankingCategory[] = [
   },
 ];
 
+const PITCHER_CATEGORIES: RankingCategory[] = [
+  {
+    label: "勝利数",
+    icon: "🌟",
+    getValue: (p) => Number((p as any).wins) || 0,
+    format: (v) => `${v}`,
+    unit: "勝",
+  },
+  {
+    label: "防御率",
+    icon: "🛡️",
+    getValue: (p) => {
+      const innings = Number((p as any).inningsPitched) || parseFloat((p as any).innings as string) || 0;
+      const earnedRuns = Number((p as any).earnedRuns) || 0;
+      if (innings <= 0) return 0;
+      return (earnedRuns * 7) / innings;
+    },
+    format: (v) => {
+      if (isNaN(v) || !isFinite(v)) return "0.00";
+      return v.toFixed(2);
+    },
+    asc: true,
+  },
+  {
+    label: "奪三振率",
+    icon: "⚔️",
+    getValue: (p) => {
+      const innings = Number((p as any).inningsPitched) || parseFloat((p as any).innings as string) || 0;
+      const strikeouts = Number((p as any).strikeouts) || 0;
+      if (innings <= 0) return 0;
+      return (strikeouts * 7) / innings;
+    },
+    format: (v) => {
+      if (isNaN(v) || !isFinite(v)) return "0.00";
+      return v.toFixed(2);
+    },
+  },
+  {
+    label: "与四死球率",
+    icon: "⚠️",
+    getValue: (p) => {
+      const innings = Number((p as any).inningsPitched) || parseFloat((p as any).innings as string) || 0;
+      const walks = (p as any).walksAllowed !== undefined 
+        ? Number((p as any).walksAllowed) + Number((p as any).hbpAllowed || 0) 
+        : Number((p as any).walksHBP) || 0;
+      if (innings <= 0) return 0;
+      return (walks * 7) / innings;
+    },
+    format: (v) => {
+      if (isNaN(v) || !isFinite(v)) return "0.00";
+      return v.toFixed(2);
+    },
+    asc: true,
+  },
+];
+
 // ── ゲージの相対幅計算用コンポーネント ──
 function StatGauge({
   val,
@@ -142,17 +199,31 @@ function RankingCard({
   category,
   players,
   onDrillDown,
+  isPitcher,
 }: {
   category: RankingCategory;
   players: PlayerStats[];
   onDrillDown: (player: PlayerStats) => void;
+  isPitcher?: boolean;
 }) {
-  const sorted = [...players]
-    .filter((p) => !p.name.includes("助っ人"))
-    .sort((a, b) => category.getValue(b) - category.getValue(a))
+  let filtered = players.filter((p) => !p.name.includes("助っ人"));
+
+  if (isPitcher) {
+    filtered = filtered.filter((p) => {
+      const innings = Number((p as any).inningsPitched) || parseFloat((p as any).innings as string) || 0;
+      return innings >= 1;
+    });
+  }
+
+  const sorted = [...filtered]
+    .sort((a, b) => {
+      const valA = category.getValue(a);
+      const valB = category.getValue(b);
+      return category.asc ? valA - valB : valB - valA;
+    })
     .slice(0, 5); // 5人表示
 
-  const maxVal = sorted.length > 0 ? category.getValue(sorted[0]) : 0;
+  const maxVal = sorted.length > 0 ? (category.asc ? category.getValue(sorted[sorted.length - 1]) : category.getValue(sorted[0])) : 0;
 
   // Stagger コンテナ（1位が最後にバウンドするための遅延等も設定可能）
   const containerVariants = {
@@ -289,6 +360,8 @@ function RankingCard({
 }
 
 export default function RankingTab({ players, onDrillDown }: RankingTabProps) {
+  const [activeTab, setActiveTab] = useState<"batter" | "pitcher">("batter");
+
   // ページ自体のフェードイン
   const pageVariants = {
     hidden: { opacity: 0, y: 10 },
@@ -316,13 +389,38 @@ export default function RankingTab({ players, onDrillDown }: RankingTabProps) {
         <p className="text-slate-400 text-sm mt-1">タップで個人詳細へジャンプ</p>
       </div>
 
+      {/* 野手・投手の切り替えタブ */}
+      <div className="flex bg-slate-200/50 p-1 rounded-xl mb-4">
+        <button
+          onClick={() => setActiveTab("batter")}
+          className={`flex-1 py-2 text-sm font-bold rounded-lg transition-colors ${
+            activeTab === "batter"
+              ? "bg-white text-[#1e3a5f] shadow-sm"
+              : "text-slate-500 hover:text-slate-700 hover:bg-black/5"
+          }`}
+        >
+          野手
+        </button>
+        <button
+          onClick={() => setActiveTab("pitcher")}
+          className={`flex-1 py-2 text-sm font-bold rounded-lg transition-colors ${
+            activeTab === "pitcher"
+              ? "bg-white text-[#1e3a5f] shadow-sm"
+              : "text-slate-500 hover:text-slate-700 hover:bg-black/5"
+          }`}
+        >
+          投手
+        </button>
+      </div>
+
       {/* 各カテゴリのランキングカード */}
-      {CATEGORIES.map((cat) => (
+      {(activeTab === "batter" ? BATTER_CATEGORIES : PITCHER_CATEGORIES).map((cat) => (
         <RankingCard
           key={cat.label}
           category={cat}
           players={players}
           onDrillDown={onDrillDown}
+          isPitcher={activeTab === "pitcher"}
         />
       ))}
     </motion.div>
