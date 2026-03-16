@@ -6,6 +6,7 @@ import type { TeamSeasonStats } from "@/app/actions";
 
 interface TeamLevelCardProps {
   teamStats: TeamSeasonStats | null;
+  totalBases?: number;
 }
 
 // ── レベル定義テーブル ─────────────────────────────────────────
@@ -22,8 +23,8 @@ const LEVELS = [
   { lv: 10, expMin: 5500, expMax: 9999, title: "🔥 大阪グニーズ覇王 🔥", stars: 5 },
 ];
 
-function calcExp(stats: TeamSeasonStats): number {
-  return stats.wins * 100 + stats.runs * 10 + stats.homeRuns * 50;
+function calcExp(stats: TeamSeasonStats, totalBases: number = 0): number {
+  return stats.wins * 500 + stats.runs * 50 + stats.homeRuns * 100 + totalBases * 20;
 }
 
 function getLevelData(exp: number) {
@@ -52,10 +53,10 @@ function useCountUp(target: number, duration = 1200): number {
   return val;
 }
 
-export default function TeamLevelCard({ teamStats }: TeamLevelCardProps) {
+export default function TeamLevelCard({ teamStats, totalBases = 0 }: TeamLevelCardProps) {
   if (!teamStats) return null;
 
-  const exp = calcExp(teamStats);
+  const exp = calcExp(teamStats, totalBases);
   const levelData = getLevelData(exp);
   const nextLevel = LEVELS.find((l) => l.lv === levelData.lv + 1);
 
@@ -143,9 +144,10 @@ export default function TeamLevelCard({ teamStats }: TeamLevelCardProps) {
           EXP内訳 / Total {animExp.toLocaleString()}
         </p>
         <div className="flex gap-3 flex-wrap">
-          <span className="text-amber-600 text-[10px]">⚔️ 勝利 {teamStats.wins}勝 × 100</span>
-          <span className="text-amber-600 text-[10px]">🔥 得点 {teamStats.runs}点 × 10</span>
-          <span className="text-amber-600 text-[10px]">💣 本塁打 {teamStats.homeRuns}本 × 50</span>
+          <span className="text-amber-600 text-[10px]">⚔️ 勝利 {teamStats.wins}勝 × 500</span>
+          <span className="text-amber-600 text-[10px]">🔥 得点 {teamStats.runs}点 × 50</span>
+          <span className="text-amber-600 text-[10px]">💣 本塁打 {teamStats.homeRuns}本 × 100</span>
+          <span className="text-amber-600 text-[10px]">⚾ 塁打 {totalBases}塁打 × 20</span>
         </div>
       </div>
     </div>

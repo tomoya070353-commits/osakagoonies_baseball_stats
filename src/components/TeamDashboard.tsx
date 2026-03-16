@@ -140,12 +140,14 @@ export default function TeamDashboard({ players, teamStats }: TeamDashboardProps
     liners: players.reduce((s, p) => s + p.liners, 0),
   } as PlayerStats;
 
+  const totalBases = players.reduce((s, p) => s + p.singles + p.doubles * 2 + p.triples * 3 + p.homeRuns * 4, 0);
+
   return (
     <div className="flex flex-col gap-5 py-4 pb-8">
 
       {/* 0: RPGレベルカード */}
       <motion.div variants={fadeUp} initial="hidden" animate="visible" {...stagger(0)}>
-        <TeamLevelCard teamStats={teamStats} />
+        <TeamLevelCard teamStats={teamStats} totalBases={totalBases} />
       </motion.div>
 
       {/* 1: ヘッダー */}
