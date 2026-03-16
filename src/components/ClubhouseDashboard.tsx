@@ -85,7 +85,7 @@ function MenuCard({ title, subtitle, icon, onClick, accent }: MenuCardProps) {
       onClick={onClick}
       className={`w-full bg-white border border-slate-200 shadow-sm rounded-2xl p-5 flex items-center gap-4 text-left active:scale-[0.98] transition-transform hover:shadow-md`}
     >
-      <div 
+      <div
         className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shrink-0"
         style={{ background: `${accent}15` }}
       >

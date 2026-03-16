@@ -24,8 +24,8 @@ export default function MonthlyAwards({ data }: MonthlyAwardsProps) {
     hidden: { opacity: 0, scale: 0.9, y: 20 },
     visible: {
       opacity: 1,
-      scale: [0.9, 1.05, 1],
-      rotate: [0, 2, -2, 0],
+      scale: 1,
+      rotate: 0,
       y: 0,
       transition: { duration: 0.6, type: "spring" as const, stiffness: 200 }
     }
