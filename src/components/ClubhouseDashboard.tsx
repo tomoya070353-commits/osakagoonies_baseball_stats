@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, Reorder, AnimatePresence } from "framer-motion";
 import type { PlayerStats } from "@/types";
 import type { PitcherStats, TeamSeasonStats, TeamHistory } from "@/app/actions";
 import CompareDashboard from "@/components/CompareDashboard";
@@ -13,7 +13,7 @@ import AmidakujiDashboard from "@/components/AmidakujiDashboard"; // Added impor
 import WeeklyRivalMatchup from "@/components/WeeklyRivalMatchup"; // Added import for Rival Matchup
 import MonthlyAwards from "@/components/MonthlyAwards";
 import { calculateMonthlyAwards } from "@/lib/monthly-awards";
-import { ChevronRight, Shield, Shuffle } from "lucide-react"; // Added Icons
+import { ChevronRight, Shield, Shuffle, GripVertical, X, ClipboardList } from "lucide-react"; // Added Icons
 
 type SubView = null | "compare" | "salary" | "milestone" | "swot" | "lineup" | "amida"; // Updated SubView type
 
@@ -102,8 +102,31 @@ function MenuCard({ title, subtitle, icon, onClick, accent }: MenuCardProps) {
 
 export default function ClubhouseDashboard({ players, pitchers, teamStats, teamHistory }: ClubhouseDashboardProps) {
   const [subView, setSubView] = useState<"compare" | "salary" | "milestone" | "swot" | "lineup" | "amida" | null>(null);
+  const [showSimulator, setShowSimulator] = useState(false);
+  const [lineup, setLineup] = useState<PlayerStats[]>(players.slice(0, 9));
 
   const monthlyAwardsData = calculateMonthlyAwards(players);
+
+  const getOrderSpecificAvg = (player: PlayerStats, orderIndex: number) => {
+    let orderAtBats = 0;
+    let orderHits = 0;
+
+    player.games.forEach((game) => {
+      if (game.battingOrder === String(orderIndex + 1)) {
+        game.atBats.forEach((ab) => {
+          if (!ab.isWalkOrHBP && !ab.isSacrificeBunt && !ab.isSacrificeFly) {
+            orderAtBats += 1;
+            if (ab.isHit) {
+              orderHits += 1;
+            }
+          }
+        });
+      }
+    });
+
+    if (orderAtBats === 0) return "-";
+    return (orderHits / orderAtBats).toFixed(3).replace(/^0/, "");
+  };
 
   if (subView === "milestone") {
     return (
@@ -217,8 +240,79 @@ export default function ClubhouseDashboard({ players, pitchers, teamStats, teamH
               accent="#d97706"
             />
           </motion.div>
+
+          {/* 手動スタメンシミュレーター */}
+          <motion.div {...stagger(MENU_ITEMS.length + 3)}>
+            <MenuCard
+              title="手動スタメンシミュレーター"
+              subtitle="打順別の成績をもとにベストオーダーを組む"
+              icon={<ClipboardList size={24} className="text-[#059669]" />}
+              onClick={() => setShowSimulator(true)}
+              accent="#059669"
+            />
+          </motion.div>
         </div>
       </div>
+
+      {/* 手動シミュレーターのオーバーレイ（全画面） */}
+      <AnimatePresence>
+        {showSimulator && (
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            className="fixed inset-0 z-[100] bg-slate-50 flex flex-col"
+          >
+            {/* ヘッダー */}
+            <div className="flex items-center justify-between p-4 bg-white border-b border-slate-200 shadow-sm">
+              <h2 className="text-lg font-bold text-slate-900">シミュレーター</h2>
+              <button
+                onClick={() => setShowSimulator(false)}
+                className="p-2 rounded-full hover:bg-slate-100 transition-colors"
+              >
+                <X size={20} className="text-slate-500" />
+              </button>
+            </div>
+
+            {/* コンテンツ */}
+            <div className="flex-1 overflow-y-auto p-4 pb-20">
+              <Reorder.Group axis="y" values={lineup} onReorder={setLineup} className="flex flex-col gap-2">
+                {lineup.map((player, index) => {
+                  const avg = getOrderSpecificAvg(player, index);
+                  return (
+                    <Reorder.Item
+                      key={player.name}
+                      value={player}
+                      whileTap={{ scale: 0.95 }}
+                      className="bg-white rounded-xl p-3 shadow-sm border border-slate-200 flex items-center gap-3"
+                    >
+                      <div className="text-slate-400 cursor-grab active:cursor-grabbing">
+                        <GripVertical size={20} />
+                      </div>
+                      
+                      <div className="w-6 h-6 rounded-full bg-slate-800 text-white flex items-center justify-center text-xs font-bold shrink-0">
+                        {index + 1}
+                      </div>
+
+                      <div className="flex-1 min-w-0 flex items-center gap-2">
+                        <span className="font-bold text-slate-900 truncate">{player.name}</span>
+                        <span className="text-[10px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded">
+                          {player.mostFrequentPosition || "-"}
+                        </span>
+                      </div>
+
+                      <div className="text-right">
+                        <div className="text-[10px] text-slate-400">打順別打率</div>
+                        <div className="font-bold text-[#059669] text-sm text-right">{avg}</div>
+                      </div>
+                    </Reorder.Item>
+                  );
+                })}
+              </Reorder.Group>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
