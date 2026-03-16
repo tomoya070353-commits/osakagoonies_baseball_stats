@@ -148,9 +148,9 @@ export default function CompareDashboard({ players: allPlayers }: CompareDashboa
       </div>
 
       {/* 選手セレクター（激突演出） */}
-      <div className="flex gap-3 items-start overflow-hidden py-2">
+      <div className="relative z-50 flex gap-3 items-start overflow-visible py-2">
         <motion.div
-          className="flex-1"
+          className="relative z-50 flex-1"
           initial={{ x: -60, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
@@ -168,7 +168,7 @@ export default function CompareDashboard({ players: allPlayers }: CompareDashboa
         </motion.div>
 
         <motion.div
-          className="flex-1"
+          className="relative z-50 flex-1"
           initial={{ x: 60, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
