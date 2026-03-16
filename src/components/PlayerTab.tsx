@@ -12,6 +12,7 @@ import ContactChart from "@/components/ContactChart";
 import ConditionBiorhythm from "@/components/ConditionBiorhythm";
 import PitcherCard, { NoPitcherData } from "@/components/PitcherCard";
 import NextGameMission from "@/components/NextGameMission";
+import BattingOrderStats from "@/components/BattingOrderStats";
 
 interface PlayerTabProps {
   players: PlayerStats[];
@@ -85,6 +86,9 @@ export default function PlayerTab({ players, selected, onSelect, pitchers }: Pla
                   <PlayerRadar player={selected} />
                   <DirectionChart player={selected} />
                   <ContactChart player={selected} />
+                </div>
+                <div className="px-5 mb-5">
+                  <BattingOrderStats player={selected} />
                 </div>
                 <div className="px-5">
                   <ConditionBiorhythm player={selected} />
