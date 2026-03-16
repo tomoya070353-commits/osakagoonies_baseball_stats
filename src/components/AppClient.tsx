@@ -75,7 +75,7 @@ export default function AppClient({ players, teamStats, pitchers, teamHistory }:
             <TeamDashboard players={players} teamStats={teamStats} />
           )}
           {activeTab === "ranking" && (
-            <RankingTab players={players} onDrillDown={handleDrillDown} />
+            <RankingTab players={players} pitchers={pitchers} onDrillDown={handleDrillDown} />
           )}
           {activeTab === "player" && (
             <PlayerTab
