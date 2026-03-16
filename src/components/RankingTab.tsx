@@ -27,6 +27,7 @@ function StreakIndicator({ player }: { player: PlayerStats }) {
 
 interface RankingTabProps {
   players: PlayerStats[];
+  pitchers?: any[];
   onDrillDown: (player: PlayerStats) => void;
 }
 
@@ -56,7 +57,7 @@ const GAUGE_COLORS = [
 interface RankingCategory {
   label: string;
   icon: string;
-  getValue: (p: PlayerStats) => number;
+  getValue: (p: PlayerStats, pitchers?: any[]) => number;
   format: (v: number) => string;
   unit?: string;
   asc?: boolean; // 昇順（数値が低い方が上位）かどうか
@@ -116,21 +117,22 @@ const PITCHER_CATEGORIES: RankingCategory[] = [
   {
     label: "勝利数",
     icon: "🌟",
-    getValue: (p) => Number((p as any).wins) || 0,
+    getValue: (p, pitchers) => {
+      const pit = pitchers?.find((pit) => pit.name === p.name) || {};
+      return Number(pit.wins) || 0;
+    },
     format: (v) => `${v}`,
     unit: "勝",
   },
   {
     label: "防御率",
     icon: "🛡️",
-    getValue: (p) => {
-      const innings = Number((p as any).inningsPitched) || parseFloat((p as any).innings as string) || 0;
-      const earnedRuns = Number((p as any).earnedRuns) || 0;
-      if (innings <= 0) return 0;
-      return (earnedRuns * 7) / innings;
+    getValue: (p, pitchers) => {
+      const pit = pitchers?.find((pit) => pit.name === p.name) || {};
+      return pit.era !== undefined && !isNaN(Number(pit.era)) ? Number(pit.era) : Infinity;
     },
     format: (v) => {
-      if (isNaN(v) || !isFinite(v)) return "0.00";
+      if (isNaN(v) || !isFinite(v) || v === 0) return "-";
       return v.toFixed(2);
     },
     asc: true,
@@ -138,11 +140,11 @@ const PITCHER_CATEGORIES: RankingCategory[] = [
   {
     label: "奪三振率",
     icon: "⚔️",
-    getValue: (p) => {
-      const innings = Number((p as any).inningsPitched) || parseFloat((p as any).innings as string) || 0;
-      const strikeouts = Number((p as any).strikeouts) || 0;
-      if (innings <= 0) return 0;
-      return (strikeouts * 7) / innings;
+    getValue: (p, pitchers) => {
+      const pit = pitchers?.find((pit) => pit.name === p.name) || {};
+      const innings = parseFloat(pit.innings) || 0;
+      const so = Number(pit.strikeouts) || 0;
+      return innings > 0 ? (so * 7) / innings : 0;
     },
     format: (v) => {
       if (isNaN(v) || !isFinite(v)) return "0.00";
@@ -152,16 +154,14 @@ const PITCHER_CATEGORIES: RankingCategory[] = [
   {
     label: "与四死球率",
     icon: "⚠️",
-    getValue: (p) => {
-      const innings = Number((p as any).inningsPitched) || parseFloat((p as any).innings as string) || 0;
-      const walks = (p as any).walksAllowed !== undefined 
-        ? Number((p as any).walksAllowed) + Number((p as any).hbpAllowed || 0) 
-        : Number((p as any).walksHBP) || 0;
-      if (innings <= 0) return 0;
-      return (walks * 7) / innings;
+    getValue: (p, pitchers) => {
+      const pit = pitchers?.find((pit) => pit.name === p.name) || {};
+      const innings = parseFloat(pit.innings) || 0;
+      const walks = Number(pit.walksHBP) || 0;
+      return innings > 0 ? (walks * 7) / innings : Infinity;
     },
     format: (v) => {
-      if (isNaN(v) || !isFinite(v)) return "0.00";
+      if (isNaN(v) || !isFinite(v) || v === 0) return "-";
       return v.toFixed(2);
     },
     asc: true,
@@ -198,11 +198,13 @@ function StatGauge({
 function RankingCard({
   category,
   players,
+  pitchers,
   onDrillDown,
   isPitcher,
 }: {
   category: RankingCategory;
   players: PlayerStats[];
+  pitchers?: any[];
   onDrillDown: (player: PlayerStats) => void;
   isPitcher?: boolean;
 }) {
@@ -210,20 +212,21 @@ function RankingCard({
 
   if (isPitcher) {
     filtered = filtered.filter((p) => {
-      const innings = Number((p as any).inningsPitched) || parseFloat((p as any).innings as string) || 0;
-      return innings >= 1;
+      const pit = pitchers?.find((pit) => pit.name === p.name) || {};
+      const innings = parseFloat(pit.innings) || 0;
+      return innings >= 1 || p.mostFrequentPosition === "投" || Number(pit.wins) > 0;
     });
   }
 
   const sorted = [...filtered]
     .sort((a, b) => {
-      const valA = category.getValue(a);
-      const valB = category.getValue(b);
+      const valA = category.getValue(a, pitchers);
+      const valB = category.getValue(b, pitchers);
       return category.asc ? valA - valB : valB - valA;
     })
     .slice(0, 5); // 5人表示
 
-  const maxVal = sorted.length > 0 ? (category.asc ? category.getValue(sorted[sorted.length - 1]) : category.getValue(sorted[0])) : 0;
+  const maxVal = sorted.length > 0 ? (category.asc ? category.getValue(sorted[sorted.length - 1], pitchers) : category.getValue(sorted[0], pitchers)) : 0;
 
   // Stagger コンテナ（1位が最後にバウンドするための遅延等も設定可能）
   const containerVariants = {
@@ -308,7 +311,7 @@ function RankingCard({
                   } ${MEDAL_BG[i]}`}
               >
                 {/* 背景スタッツゲージ */}
-                <StatGauge val={category.getValue(player)} maxVal={maxVal} rankIndex={i} />
+                <StatGauge val={category.getValue(player, pitchers)} maxVal={maxVal} rankIndex={i} />
 
                 {/* 順位バッジ */}
                 <div className="w-8 h-8 flex items-center justify-center shrink-0 relative z-10">
@@ -341,7 +344,7 @@ function RankingCard({
                 <div className="flex items-center gap-1 shrink-0 relative z-10">
                   <span className={`font-black tracking-tight ${isFirstItem ? "text-xl text-amber-600 drop-shadow-sm" : "text-base text-slate-700"
                     }`}>
-                    {category.format(category.getValue(player))}
+                    {category.format(category.getValue(player, pitchers))}
                   </span>
                   {category.unit && (
                     <span className={`text-[10px] mt-1 ${isFirstItem ? "text-amber-600/70 font-bold" : "text-slate-400"}`}>
@@ -359,7 +362,7 @@ function RankingCard({
   );
 }
 
-export default function RankingTab({ players, onDrillDown }: RankingTabProps) {
+export default function RankingTab({ players, pitchers, onDrillDown }: RankingTabProps) {
   const [activeTab, setActiveTab] = useState<"batter" | "pitcher">("batter");
 
   // ページ自体のフェードイン
@@ -419,6 +422,7 @@ export default function RankingTab({ players, onDrillDown }: RankingTabProps) {
           key={cat.label}
           category={cat}
           players={players}
+          pitchers={pitchers}
           onDrillDown={onDrillDown}
           isPitcher={activeTab === "pitcher"}
         />
