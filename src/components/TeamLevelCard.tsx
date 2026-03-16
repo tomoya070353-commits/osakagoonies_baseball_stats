@@ -9,29 +9,56 @@ interface TeamLevelCardProps {
   totalBases?: number;
 }
 
-// ── レベル定義テーブル ─────────────────────────────────────────
-const LEVELS = [
-  { lv: 1, expMin: 0, expMax: 299, title: "まだまだひよっこ", stars: 1 },
-  { lv: 2, expMin: 300, expMax: 599, title: "新進気鋭の若駒", stars: 1 },
-  { lv: 3, expMin: 600, expMax: 999, title: "浪速の挑戦者", stars: 2 },
-  { lv: 4, expMin: 1000, expMax: 1499, title: "浪速のダークホース", stars: 2 },
-  { lv: 5, expMin: 1500, expMax: 2099, title: "大阪の猛者", stars: 3 },
-  { lv: 6, expMin: 2100, expMax: 2799, title: "関西の強豪", stars: 3 },
-  { lv: 7, expMin: 2800, expMax: 3599, title: "西の鉄砲玉", stars: 4 },
-  { lv: 8, expMin: 3600, expMax: 4499, title: "伝説への序章", stars: 4 },
-  { lv: 9, expMin: 4500, expMax: 5499, title: "覇王への道", stars: 5 },
-  { lv: 10, expMin: 5500, expMax: 9999, title: "🔥 大阪グニーズ覇王 🔥", stars: 5 },
-];
-
-function calcExp(stats: TeamSeasonStats, totalBases: number = 0): number {
-  return stats.wins * 500 + stats.runs * 50 + stats.homeRuns * 100 + totalBases * 20;
+function getTeamTitle(level: number): string {
+  if (level >= 250) return "Goonies完全体";
+  if (level >= 240) return "永遠の覇者";
+  if (level >= 230) return "宇宙最強打線";
+  if (level >= 220) return "神々の草野球";
+  if (level >= 210) return "無敗の帝王";
+  if (level >= 200) return "生ける伝説";
+  if (level >= 190) return "球史に名を刻む者";
+  if (level >= 180) return "アマチュア最高峰";
+  if (level >= 170) return "全国大会の常連";
+  if (level >= 160) return "投打の黄金バランス";
+  if (level >= 150) return "破壊力抜群の打線";
+  if (level >= 140) return "鉄壁の守備陣";
+  if (level >= 130) return "草野球界のカリスマ";
+  if (level >= 120) return "噂のタレント集団";
+  if (level >= 110) return "百戦錬磨のベテラン軍団";
+  if (level >= 100) return "都道府県ランカー";
+  if (level >= 90) return "市区町村の覇者";
+  if (level >= 80) return "A級昇格への道";
+  if (level >= 70) return "地元密着の強豪";
+  if (level >= 60) return "安定の中堅クラス";
+  if (level >= 50) return "B級の実力派";
+  if (level >= 40) return "市民大会のダークホース";
+  if (level >= 30) return "初勝利の美酒";
+  if (level >= 20) return "C級の刺客";
+  if (level >= 10) return "週末エンジョイ勢";
+  return "草野球ルーキー";
 }
 
-function getLevelData(exp: number) {
-  for (let i = LEVELS.length - 1; i >= 0; i--) {
-    if (exp >= LEVELS[i].expMin) return LEVELS[i];
+function getExpForLevel(level: number): number {
+  if (level <= 1) return 0;
+  if (level === 2) return 300;
+  if (level === 3) return 600;
+  let exp = 600;
+  for (let i = 4; i <= level; i++) {
+    exp += i * 100;
   }
-  return LEVELS[0];
+  return exp;
+}
+
+function getLevelFromExp(exp: number): number {
+  let lv = 1;
+  while (lv < 250 && exp >= getExpForLevel(lv + 1)) {
+    lv++;
+  }
+  return lv;
+}
+
+function calcExp(stats: TeamSeasonStats, totalBases: number = 0): number {
+  return stats.wins * 1000 + stats.runs * 75 + stats.homeRuns * 300 + totalBases * 50 + (stats.stolenBases || 0) * 75;
 }
 
 // ── カウントアップ Hook ────────────────────────────────────────
@@ -57,17 +84,25 @@ export default function TeamLevelCard({ teamStats, totalBases = 0 }: TeamLevelCa
   if (!teamStats) return null;
 
   const exp = calcExp(teamStats, totalBases);
-  const levelData = getLevelData(exp);
-  const nextLevel = LEVELS.find((l) => l.lv === levelData.lv + 1);
+  const currentLv = getLevelFromExp(exp);
 
-  const expInLevel = exp - levelData.expMin;
-  const expNeeded = nextLevel ? nextLevel.expMin - levelData.expMin : levelData.expMax - levelData.expMin;
-  const pct = nextLevel ? Math.min((expInLevel / expNeeded) * 100, 100) : 100;
-  const isMaxLevel = !nextLevel;
+  const expMin = getExpForLevel(currentLv);
+  const nextExpMin = currentLv < 250 ? getExpForLevel(currentLv + 1) : expMin;
+
+  const expInLevel = exp - expMin;
+  const expNeeded = currentLv < 250 ? nextExpMin - expMin : 0;
+  const pct = currentLv < 250 ? Math.min((expInLevel / expNeeded) * 100, 100) : 100;
+  const isMaxLevel = currentLv >= 250;
 
   // カウントアップ
-  const animLv = useCountUp(levelData.lv, 800);
+  const animLv = useCountUp(currentLv, 800);
   const animExp = useCountUp(exp, 1200);
+
+  // 称号取得
+  const teamTitle = getTeamTitle(animLv);
+
+  // レベルに応じた星の数（50レベルごとに1つ増え、最大5つを適当に表示）
+  const starsCount = Math.min(5, Math.ceil(animLv / 50) || 1);
 
   // EXPバーのinView
   const barRef = useRef<HTMLDivElement>(null);
@@ -88,23 +123,28 @@ export default function TeamLevelCard({ teamStats, totalBases = 0 }: TeamLevelCa
         <div className="flex items-end justify-between">
           <div>
             <p className="text-amber-400/70 text-[10px] font-semibold tracking-wider uppercase mb-0.5">チームレベル</p>
-            <div className="flex items-end gap-2">
-              <span className="text-white/50 text-2xl font-black leading-none">Lv.</span>
-              <span
-                className="text-amber-400 text-6xl font-black leading-none"
-                style={{ textShadow: "0 0 24px rgba(251,191,36,0.4)" }}
-              >
-                {animLv}
-              </span>
+            <div className="flex flex-col gap-1">
+              <div className="flex items-end gap-2">
+                <span className="text-white/50 text-2xl font-black leading-none">Lv.</span>
+                <span
+                  className="text-amber-400 text-6xl font-black leading-none"
+                  style={{ textShadow: "0 0 24px rgba(251,191,36,0.4)" }}
+                >
+                  {animLv}
+                </span>
+              </div>
+              {/* レベルごとの称号（バッジ風デザイン） */}
+              <div className="inline-flex mt-1">
+                <span className="text-xs font-bold text-slate-800 bg-amber-400/90 px-2 py-0.5 rounded-md shadow-sm border border-amber-300">
+                  {teamTitle}
+                </span>
+              </div>
             </div>
           </div>
-          <div className="text-right">
-            <p className="text-amber-300 text-sm font-black leading-tight max-w-[140px] text-right">
-              {levelData.title}
-            </p>
+          <div className="text-right flex flex-col justify-end">
             <div className="flex items-center justify-end gap-0.5 mt-1">
               {Array.from({ length: 5 }).map((_, i) => (
-                <span key={i} className={`text-sm ${i < levelData.stars ? "text-amber-400" : "text-white/10"}`}>★</span>
+                <span key={i} className={`text-lg ${i < starsCount ? "text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.8)]" : "text-white/10"}`}>★</span>
               ))}
             </div>
           </div>
@@ -144,10 +184,11 @@ export default function TeamLevelCard({ teamStats, totalBases = 0 }: TeamLevelCa
           EXP内訳 / Total {animExp.toLocaleString()}
         </p>
         <div className="flex gap-3 flex-wrap">
-          <span className="text-amber-600 text-[10px]">⚔️ 勝利 {teamStats.wins}勝 × 500</span>
-          <span className="text-amber-600 text-[10px]">🔥 得点 {teamStats.runs}点 × 50</span>
-          <span className="text-amber-600 text-[10px]">💣 本塁打 {teamStats.homeRuns}本 × 100</span>
-          <span className="text-amber-600 text-[10px]">⚾ 塁打 {totalBases}塁打 × 20</span>
+          <span className="text-amber-600 text-[10px]">⚔️ 勝利 {teamStats.wins}勝 × 1000</span>
+          <span className="text-amber-600 text-[10px]">🔥 得点 {teamStats.runs}点 × 75</span>
+          <span className="text-amber-600 text-[10px]">💣 本塁打 {teamStats.homeRuns}本 × 300</span>
+          <span className="text-amber-600 text-[10px]">⚾ 塁打 {totalBases}塁打 × 50</span>
+          <span className="text-amber-600 text-[10px]">💨 盗塁 {teamStats.stolenBases || 0}個 × 75</span>
         </div>
       </div>
     </div>
