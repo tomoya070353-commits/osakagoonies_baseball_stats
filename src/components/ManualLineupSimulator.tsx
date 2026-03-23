@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { PlayerStats } from "@/types";
-import { ChevronRight, X, ArrowLeftRight, UserPlus } from "lucide-react";
+import { ChevronRight, X, ArrowLeftRight, UserPlus, Camera } from "lucide-react";
 
 // ── 守備位置リスト ──────────────────────────────────────
 const POSITIONS = [
@@ -61,6 +61,7 @@ export default function ManualLineupSimulator({ players, onBack }: ManualLineupS
   const [editingOrder, setEditingOrder] = useState<number | null>(null); // モーダル表示中の order
   const [modalStep, setModalStep] = useState<"player" | "position">("player");
   const [pendingPlayer, setPendingPlayer] = useState<PlayerStats | null>(null);
+  const [showShareView, setShowShareView] = useState(false);
 
   // 打順追加
   const addSlot = () => {
@@ -174,19 +175,30 @@ export default function ManualLineupSimulator({ players, onBack }: ManualLineupS
             <span>クラブハウスに戻る</span>
           </button>
           <h1 className="text-center font-bold text-sm leading-tight shrink-0 mx-1">手動スタメン<br/>シミュレーター</h1>
-          {/* 入れ替えモードトグルボタン */}
-          <button
-            onClick={toggleSwapMode}
-            className={`
-              flex items-center gap-1 text-[11px] font-bold px-2.5 py-1.5 rounded-xl transition-all whitespace-nowrap shrink-0
-              ${isSwapMode
-                ? "bg-amber-500 text-white shadow-md shadow-amber-200"
-                : "bg-slate-100 text-slate-500 hover:bg-slate-200"}
-            `}
-          >
-            <ArrowLeftRight size={12} />
-            {isSwapMode ? "入替モード中" : "打順入替"}
-          </button>
+          {/* ヘッダー右エリア */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            {/* 共有用ボタン */}
+            <button
+              onClick={() => setShowShareView(true)}
+              className="flex items-center gap-1 text-[11px] font-bold px-2.5 py-1.5 rounded-xl transition-all whitespace-nowrap bg-emerald-500 text-white shadow-md shadow-emerald-200 hover:bg-emerald-600"
+            >
+              <Camera size={12} />
+              共有用
+            </button>
+            {/* 入れ替えモードトグルボタン */}
+            <button
+              onClick={toggleSwapMode}
+              className={`
+                flex items-center gap-1 text-[11px] font-bold px-2.5 py-1.5 rounded-xl transition-all whitespace-nowrap
+                ${isSwapMode
+                  ? "bg-amber-500 text-white shadow-md shadow-amber-200"
+                  : "bg-slate-100 text-slate-500 hover:bg-slate-200"}
+              `}
+            >
+              <ArrowLeftRight size={12} />
+              {isSwapMode ? "入替モード中" : "打順入替"}
+            </button>
+          </div>
         </div>
 
         {/* 案内メッセージ */}
@@ -369,7 +381,7 @@ export default function ManualLineupSimulator({ players, onBack }: ManualLineupS
               )}
 
               {/* コンテンツ */}
-              <div className="flex-1 overflow-y-auto px-4 py-3 pb-8">
+              <div className="flex-1 overflow-y-auto px-4 py-3 pb-32">
                 {modalStep === "player" ? (
                   /* ステップ1: 選手選択リスト */
                   <div className="flex flex-col gap-2">
@@ -459,6 +471,78 @@ export default function ManualLineupSimulator({ players, onBack }: ManualLineupS
               </div>
             </motion.div>
           </>
+        )}
+      </AnimatePresence>
+
+      {/* 共有用全画面オーバーレイ */}
+      <AnimatePresence>
+        {showShareView && (
+          <motion.div
+            key="share-view"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="fixed inset-0 z-[150] bg-white flex flex-col"
+            onClick={() => setShowShareView(false)}
+          >
+            {/* ヘッダー部分 */}
+            <div className="pt-10 pb-6 px-8 text-center border-b border-slate-100">
+              <p className="text-[11px] font-bold tracking-[0.25em] text-slate-400 uppercase mb-1">Starting Lineup</p>
+              <h2 className="text-2xl font-black text-slate-900 tracking-tight">本日のスタメン</h2>
+              <p className="text-sm text-slate-500 font-semibold mt-1">Goonies 野球部</p>
+            </div>
+
+            {/* 打順リスト（スクロール可能） */}
+            <div className="flex-1 overflow-y-auto px-6 py-4">
+              {lineup
+                .filter((slot) => slot.player !== null)
+                .map((slot, idx) => (
+                  <div
+                    key={slot.order}
+                    className="flex items-center gap-4 py-3 border-b border-slate-100 last:border-0"
+                  >
+                    {/* 打順バッジ */}
+                    <div className="w-9 h-9 rounded-full bg-slate-900 flex items-center justify-center shrink-0">
+                      <span className="text-white text-sm font-black">{slot.order}</span>
+                    </div>
+
+                    {/* 選手名 + スタッツ */}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-lg font-black text-slate-900 leading-tight tracking-tight">
+                        {slot.player!.name}
+                      </p>
+                      <div className="flex items-center gap-3 mt-0.5">
+                        <span className="text-[11px] text-slate-400">
+                          AVG <span className="font-bold text-slate-600">{fmtAvg(slot.player!.avg)}</span>
+                        </span>
+                        <span className="text-[11px] text-slate-400">
+                          OPS <span className="font-bold text-slate-600">{fmtOps(slot.player!.ops)}</span>
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* 守備位置 */}
+                    {slot.position && (
+                      <div className="shrink-0 w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center">
+                        <span className="text-emerald-700 text-sm font-black">{slot.position}</span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+
+              {lineup.filter((s) => s.player !== null).length === 0 && (
+                <div className="text-center py-16 text-slate-300">
+                  <p className="text-sm font-semibold">選手が設定されていません</p>
+                </div>
+              )}
+            </div>
+
+            {/* フッター */}
+            <div className="px-8 py-5 text-center border-t border-slate-100">
+              <p className="text-[10px] text-slate-300 tracking-widest">TAP ANYWHERE TO CLOSE</p>
+            </div>
+          </motion.div>
         )}
       </AnimatePresence>
     </div>
