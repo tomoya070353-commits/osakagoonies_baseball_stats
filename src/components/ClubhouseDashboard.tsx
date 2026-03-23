@@ -9,13 +9,14 @@ import SalaryDashboard from "@/components/SalaryDashboard";
 import MilestoneDashboard from "@/components/MilestoneDashboard";
 import SwotDashboard from "@/components/SwotDashboard";
 import LineupSimulator from "@/components/LineupSimulator"; // Added import for LineupSimulator
+import ManualLineupSimulator from "@/components/ManualLineupSimulator";
 import AmidakujiDashboard from "@/components/AmidakujiDashboard"; // Added import for Amidakuji
 import WeeklyRivalMatchup from "@/components/WeeklyRivalMatchup"; // Added import for Rival Matchup
 import MonthlyAwards from "@/components/MonthlyAwards";
 import { calculateMonthlyAwards } from "@/lib/monthly-awards";
-import { ChevronRight, Shield, Shuffle } from "lucide-react";
+import { ChevronRight, Shield, Shuffle, ClipboardList } from "lucide-react";
 
-type SubView = null | "compare" | "salary" | "milestone" | "swot" | "lineup" | "amida"; // Updated SubView type
+type SubView = null | "compare" | "salary" | "milestone" | "swot" | "lineup" | "amida" | "manual";
 
 interface ClubhouseDashboardProps {
   players: PlayerStats[];
@@ -101,7 +102,7 @@ function MenuCard({ title, subtitle, icon, onClick, accent }: MenuCardProps) {
 }
 
 export default function ClubhouseDashboard({ players, pitchers, teamStats, teamHistory }: ClubhouseDashboardProps) {
-  const [subView, setSubView] = useState<"compare" | "salary" | "milestone" | "swot" | "lineup" | "amida" | null>(null);
+  const [subView, setSubView] = useState<"compare" | "salary" | "milestone" | "swot" | "lineup" | "amida" | "manual" | null>(null);
 
   const monthlyAwardsData = calculateMonthlyAwards(players);
 
@@ -150,9 +151,15 @@ export default function ClubhouseDashboard({ players, pitchers, teamStats, teamH
   if (subView === "amida") {
     return (
       <div className="min-h-screen bg-slate-50 pb-24">
-        <BackBar label="運命のあみだくじ" onBack={() => setSubView(null)} />
+        <BackBar label="あみだくじ" onBack={() => setSubView(null)} />
         <AmidakujiDashboard players={players} onBack={() => setSubView(null)} />
       </div>
+    );
+  }
+
+  if (subView === "manual") {
+    return (
+      <ManualLineupSimulator players={players} onBack={() => setSubView(null)} />
     );
   }
 
@@ -215,6 +222,16 @@ export default function ClubhouseDashboard({ players, pitchers, teamStats, teamH
               icon={<Shuffle size={24} className="text-[#d97706]" />}
               onClick={() => setSubView("amida")}
               accent="#d97706"
+            />
+          </motion.div>
+
+          <motion.div {...stagger(MENU_ITEMS.length + 3)}>
+            <MenuCard
+              title="手動スタメンシミュレーター"
+              subtitle="監督の直感とデータで組むベストオーダー"
+              icon={<ClipboardList size={24} className="text-[#059669]" />}
+              onClick={() => setSubView("manual")}
+              accent="#059669"
             />
           </motion.div>
         </div>
