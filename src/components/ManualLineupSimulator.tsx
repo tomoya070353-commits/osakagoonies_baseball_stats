@@ -7,8 +7,7 @@ import { ChevronRight, X, ArrowLeftRight, UserPlus } from "lucide-react";
 
 // ── 守備位置リスト ──────────────────────────────────────
 const POSITIONS = [
-  "投手", "捕手", "一塁手", "二塁手", "三塁手",
-  "遊撃手", "左翼手", "中堅手", "右翼手", "指名打者",
+  "投", "捕", "一", "二", "三", "遊", "左", "中", "右", "DH",
 ];
 
 // ── 型定義 ──────────────────────────────────────────────
@@ -169,19 +168,17 @@ export default function ManualLineupSimulator({ players, onBack }: ManualLineupS
         <div className="flex items-center justify-between px-4 py-3">
           <button
             onClick={onBack}
-            className="flex items-center gap-1.5 text-slate-500 hover:text-slate-800 transition-colors text-sm font-semibold"
+            className="flex items-center gap-1.5 text-slate-500 hover:text-slate-800 transition-colors text-sm font-semibold whitespace-nowrap shrink-0"
           >
             <ChevronRight size={18} className="rotate-180" />
             <span>クラブハウスに戻る</span>
           </button>
-          <div className="text-center">
-            <p className="text-xs font-bold text-slate-900">手動スタメンシミュレーター</p>
-          </div>
+          <h1 className="text-center font-bold text-sm leading-tight shrink-0 mx-1">手動スタメン<br/>シミュレーター</h1>
           {/* 入れ替えモードトグルボタン */}
           <button
             onClick={toggleSwapMode}
             className={`
-              flex items-center gap-1 text-[11px] font-bold px-2.5 py-1.5 rounded-xl transition-all
+              flex items-center gap-1 text-[11px] font-bold px-2.5 py-1.5 rounded-xl transition-all whitespace-nowrap shrink-0
               ${isSwapMode
                 ? "bg-amber-500 text-white shadow-md shadow-amber-200"
                 : "bg-slate-100 text-slate-500 hover:bg-slate-200"}
@@ -427,17 +424,37 @@ export default function ManualLineupSimulator({ players, onBack }: ManualLineupS
                   </div>
                 ) : (
                   /* ステップ2: 守備位置選択グリッド */
-                  <div className="grid grid-cols-3 gap-2.5">
-                    {POSITIONS.map((pos) => (
-                      <button
-                        key={pos}
-                        onClick={() => selectPosition(pos)}
-                        className="py-3 rounded-xl border border-slate-200 text-slate-700 text-sm font-bold hover:border-[#059669] hover:text-[#059669] hover:bg-[#ecfdf5] transition-all"
-                      >
-                        {pos}
-                      </button>
-                    ))}
-                  </div>
+                  (() => {
+                    // 現在編集中の打順自身のポジションを除いた使用済みポジション（DHは重複判定から除外）
+                    const usedPositions = new Set(
+                      lineup
+                        .filter((s) => s.position !== null && s.order !== editingOrder)
+                        .map((s) => s.position!)
+                        .filter((p) => p !== "DH")
+                    );
+                    return (
+                      <div className="grid grid-cols-3 gap-2.5">
+                        {POSITIONS.map((pos) => {
+                          const isDisabled = pos !== "DH" && usedPositions.has(pos);
+                          return (
+                            <button
+                              key={pos}
+                              onClick={() => !isDisabled && selectPosition(pos)}
+                              disabled={isDisabled}
+                              className={`
+                                py-3 rounded-xl border text-sm font-bold transition-all
+                                ${isDisabled
+                                  ? "border-slate-100 bg-slate-50 text-slate-300 cursor-not-allowed opacity-50"
+                                  : "border-slate-200 text-slate-700 hover:border-[#059669] hover:text-[#059669] hover:bg-[#ecfdf5]"}
+                              `}
+                            >
+                              {pos}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    );
+                  })()
                 )}
               </div>
             </motion.div>
