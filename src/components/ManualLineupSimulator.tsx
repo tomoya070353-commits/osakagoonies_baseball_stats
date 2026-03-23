@@ -486,62 +486,55 @@ export default function ManualLineupSimulator({ players, onBack }: ManualLineupS
             className="fixed inset-0 z-[150] bg-white flex flex-col"
             onClick={() => setShowShareView(false)}
           >
-            {/* ヘッダー部分 */}
-            <div className="pt-10 pb-6 px-8 text-center border-b border-slate-100">
-              <p className="text-[11px] font-bold tracking-[0.25em] text-slate-400 uppercase mb-1">Starting Lineup</p>
-              <h2 className="text-2xl font-black text-slate-900 tracking-tight">本日のスタメン</h2>
-              <p className="text-sm text-slate-500 font-semibold mt-1">Goonies 野球部</p>
-            </div>
+            {/* ヘッダー：極小1行 */}
+            <h2 className="text-center font-black text-lg tracking-widest text-slate-800 py-2 border-b border-slate-100 shrink-0">
+              STARTING LINEUP
+            </h2>
 
-            {/* 打順リスト（スクロール可能） */}
-            <div className="flex-1 overflow-y-auto px-6 py-4">
+            {/* 打順リスト：画面内に均等分散、スクロールなし */}
+            <div className="flex flex-col flex-1 justify-evenly min-h-0 px-4">
               {lineup
                 .filter((slot) => slot.player !== null)
-                .map((slot, idx) => (
+                .map((slot) => (
                   <div
                     key={slot.order}
-                    className="flex items-center gap-4 py-3 border-b border-slate-100 last:border-0"
+                    className="flex items-center gap-2 border-b border-slate-100 last:border-0 py-1"
                   >
-                    {/* 打順バッジ */}
-                    <div className="w-9 h-9 rounded-full bg-slate-900 flex items-center justify-center shrink-0">
-                      <span className="text-white text-sm font-black">{slot.order}</span>
+                    {/* 打順バッジ：極小 */}
+                    <div className="w-5 h-5 rounded-full bg-slate-900 flex items-center justify-center shrink-0">
+                      <span className="text-white text-[10px] font-black leading-none">{slot.order}</span>
                     </div>
 
-                    {/* 選手名 + スタッツ */}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-lg font-black text-slate-900 leading-tight tracking-tight">
-                        {slot.player!.name}
-                      </p>
-                      <div className="flex items-center gap-3 mt-0.5">
-                        <span className="text-[11px] text-slate-400">
-                          AVG <span className="font-bold text-slate-600">{fmtAvg(slot.player!.avg)}</span>
-                        </span>
-                        <span className="text-[11px] text-slate-400">
-                          OPS <span className="font-bold text-slate-600">{fmtOps(slot.player!.ops)}</span>
-                        </span>
-                      </div>
-                    </div>
+                    {/* 選手名 */}
+                    <p className="flex-1 min-w-0 text-sm font-black text-slate-900 truncate leading-tight">
+                      {slot.player!.name}
+                    </p>
 
-                    {/* 守備位置 */}
+                    {/* AVG（極小） */}
+                    <span className="text-[9px] text-slate-400 shrink-0">
+                      AVG <span className="font-bold text-slate-600">{fmtAvg(slot.player!.avg)}</span>
+                    </span>
+
+                    {/* 守備位置バッジ：極小 */}
                     {slot.position && (
-                      <div className="shrink-0 w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center">
-                        <span className="text-emerald-700 text-sm font-black">{slot.position}</span>
+                      <div className="shrink-0 w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center">
+                        <span className="text-emerald-700 text-[11px] font-black">{slot.position}</span>
                       </div>
                     )}
                   </div>
                 ))}
 
               {lineup.filter((s) => s.player !== null).length === 0 && (
-                <div className="text-center py-16 text-slate-300">
+                <div className="text-center py-8 text-slate-300">
                   <p className="text-sm font-semibold">選手が設定されていません</p>
                 </div>
               )}
             </div>
 
-            {/* フッター */}
-            <div className="px-8 py-5 text-center border-t border-slate-100">
-              <p className="text-[10px] text-slate-300 tracking-widest">TAP ANYWHERE TO CLOSE</p>
-            </div>
+            {/* フッター：超小テキストのみ */}
+            <p className="text-center text-[9px] text-slate-300 tracking-widest py-1.5 shrink-0">
+              TAP TO CLOSE
+            </p>
           </motion.div>
         )}
       </AnimatePresence>
