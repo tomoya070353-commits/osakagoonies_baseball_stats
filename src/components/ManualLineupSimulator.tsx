@@ -166,21 +166,21 @@ export default function ManualLineupSimulator({ players, onBack }: ManualLineupS
     <div className="min-h-screen bg-[#f0f4f8] flex flex-col">
       {/* ヘッダー */}
       <div className="sticky top-0 z-20 bg-white border-b border-slate-200 shadow-sm">
-        <div className="flex items-center justify-between px-4 py-3">
+        <div className="flex items-center justify-between w-full px-2 py-3">
+          {/* 戻るボタン（左） */}
           <button
             onClick={onBack}
-            className="flex items-center gap-1.5 text-slate-500 hover:text-slate-800 transition-colors text-sm font-semibold whitespace-nowrap shrink-0"
+            className="flex items-center gap-1 text-slate-500 hover:text-slate-800 transition-colors text-sm font-semibold whitespace-nowrap shrink-0"
           >
             <ChevronRight size={18} className="rotate-180" />
             <span>クラブハウスに戻る</span>
           </button>
-          <h1 className="text-center font-bold text-sm leading-tight shrink-0 mx-1">手動スタメン<br/>シミュレーター</h1>
-          {/* ヘッダー右エリア */}
-          <div className="flex items-center gap-1.5 shrink-0">
+          {/* ボタングループ（右） */}
+          <div className="flex items-center gap-2 shrink-0">
             {/* 共有用ボタン */}
             <button
               onClick={() => setShowShareView(true)}
-              className="flex items-center gap-1 text-[11px] font-bold px-2.5 py-1.5 rounded-xl transition-all whitespace-nowrap bg-emerald-500 text-white shadow-md shadow-emerald-200 hover:bg-emerald-600"
+              className="flex items-center gap-1 text-[11px] font-bold px-2 py-1.5 rounded-xl transition-all whitespace-nowrap shrink-0 bg-emerald-500 text-white shadow-md shadow-emerald-200 hover:bg-emerald-600"
             >
               <Camera size={12} />
               共有用
@@ -189,7 +189,7 @@ export default function ManualLineupSimulator({ players, onBack }: ManualLineupS
             <button
               onClick={toggleSwapMode}
               className={`
-                flex items-center gap-1 text-[11px] font-bold px-2.5 py-1.5 rounded-xl transition-all whitespace-nowrap
+                flex items-center gap-1 text-[11px] font-bold px-2 py-1.5 rounded-xl transition-all whitespace-nowrap shrink-0
                 ${isSwapMode
                   ? "bg-amber-500 text-white shadow-md shadow-amber-200"
                   : "bg-slate-100 text-slate-500 hover:bg-slate-200"}
