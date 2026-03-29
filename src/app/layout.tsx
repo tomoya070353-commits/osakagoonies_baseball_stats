@@ -9,8 +9,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "野球成績ダッシュボード",
-  description: "草野球チームの打席データを分析・可視化するモバイル特化型BIアプリ",
+  title: "大阪グーニーズ成績管理",
+  description: "大阪グーニーズの打席データを分析・可視化するモバイル特化型BIアプリ",
 };
 
 export default function RootLayout({
