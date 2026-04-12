@@ -38,25 +38,6 @@ function getTeamTitle(level: number): string {
   return "草野球ルーキー";
 }
 
-function getExpForLevel(level: number): number {
-  if (level <= 1) return 0;
-  if (level === 2) return 300;
-  if (level === 3) return 600;
-  let exp = 600;
-  for (let i = 4; i <= level; i++) {
-    exp += i * 100;
-  }
-  return exp;
-}
-
-function getLevelFromExp(exp: number): number {
-  let lv = 1;
-  while (lv < 250 && exp >= getExpForLevel(lv + 1)) {
-    lv++;
-  }
-  return lv;
-}
-
 function calcExp(stats: TeamSeasonStats, totalBases: number = 0): number {
   return stats.wins * 1000 + stats.runs * 75 + stats.homeRuns * 300 + totalBases * 50 + (stats.stolenBases || 0) * 75;
 }
@@ -84,15 +65,11 @@ export default function TeamLevelCard({ teamStats, totalBases = 0 }: TeamLevelCa
   if (!teamStats) return null;
 
   const exp = calcExp(teamStats, totalBases);
-  const currentLv = getLevelFromExp(exp);
-
-  const expMin = getExpForLevel(currentLv);
-  const nextExpMin = currentLv < 250 ? getExpForLevel(currentLv + 1) : expMin;
-
-  const expInLevel = exp - expMin;
-  const expNeeded = currentLv < 250 ? nextExpMin - expMin : 0;
-  const pct = currentLv < 250 ? Math.min((expInLevel / expNeeded) * 100, 100) : 100;
+  const currentLv = Math.min(250, Math.floor(exp / 1000) + 1);
   const isMaxLevel = currentLv >= 250;
+
+  const remainingExp = isMaxLevel ? 0 : 1000 - (exp % 1000);
+  const pct = isMaxLevel ? 100 : (exp % 1000) / 1000 * 100;
 
   // カウントアップ
   const animLv = useCountUp(currentLv, 800);
@@ -172,7 +149,7 @@ export default function TeamLevelCard({ teamStats, totalBases = 0 }: TeamLevelCa
           </div>
           {!isMaxLevel && (
             <p className="text-white/30 text-[9px] mt-1 text-right">
-              次のレベルまで あと {(expNeeded - expInLevel).toLocaleString()} EXP
+              次のレベルまで あと {remainingExp.toLocaleString()} EXP
             </p>
           )}
         </div>
