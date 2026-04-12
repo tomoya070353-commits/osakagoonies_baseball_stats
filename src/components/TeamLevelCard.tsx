@@ -39,7 +39,7 @@ function getTeamTitle(level: number): string {
 }
 
 function calcExp(stats: TeamSeasonStats, totalBases: number = 0): number {
-  return stats.wins * 1000 + stats.runs * 75 + stats.homeRuns * 300 + totalBases * 50 + (stats.stolenBases || 0) * 75;
+  return stats.wins * 5000 + stats.runs * 300 + stats.homeRuns * 1000 + totalBases * 200 + (stats.stolenBases || 0) * 300;
 }
 
 // ── カウントアップ Hook ────────────────────────────────────────
@@ -161,11 +161,11 @@ export default function TeamLevelCard({ teamStats, totalBases = 0 }: TeamLevelCa
           EXP内訳 / Total {animExp.toLocaleString()}
         </p>
         <div className="flex gap-3 flex-wrap">
-          <span className="text-amber-600 text-[10px]">⚔️ 勝利 {teamStats.wins}勝 × 1000</span>
-          <span className="text-amber-600 text-[10px]">🔥 得点 {teamStats.runs}点 × 75</span>
-          <span className="text-amber-600 text-[10px]">💣 本塁打 {teamStats.homeRuns}本 × 300</span>
-          <span className="text-amber-600 text-[10px]">⚾ 塁打 {totalBases}塁打 × 50</span>
-          <span className="text-amber-600 text-[10px]">💨 盗塁 {teamStats.stolenBases || 0}個 × 75</span>
+          <span className="text-amber-600 text-[10px]">⚔️ 勝利 {teamStats.wins}勝 × 5000</span>
+          <span className="text-amber-600 text-[10px]">🔥 得点 {teamStats.runs}点 × 300</span>
+          <span className="text-amber-600 text-[10px]">💣 本塁打 {teamStats.homeRuns}本 × 1000</span>
+          <span className="text-amber-600 text-[10px]">⚾ 塁打 {totalBases}塁打 × 200</span>
+          <span className="text-amber-600 text-[10px]">💨 盗塁 {teamStats.stolenBases || 0}個 × 300</span>
         </div>
       </div>
     </div>
