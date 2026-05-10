@@ -30,7 +30,7 @@ export default function AppClient({ players, teamStats, pitchers, teamHistory }:
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowSplash(false);
-    }, 2800);
+    }, 4500);
     return () => clearTimeout(timer);
   }, []);
 
