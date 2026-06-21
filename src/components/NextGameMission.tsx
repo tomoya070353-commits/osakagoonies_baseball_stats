@@ -14,32 +14,36 @@ export default function NextGameMission({ player }: NextGameMissionProps) {
   if (!mission) return null;
 
   return (
-    <div className="px-5 mb-1 mt-2">
+    <div className="px-5 mb-2 mt-2">
       <motion.div
-        initial={{ scale: 0.8, opacity: 0, y: 15 }}
+        initial={{ scale: 0.9, opacity: 0, y: 15 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
-        transition={{ type: "spring", stiffness: 200, damping: 15 }}
-        className={`relative overflow-hidden p-4 rounded-xl shadow-sm border-l-4 ${
+        transition={{ type: "spring", stiffness: 200, damping: 18 }}
+        className={`relative overflow-hidden p-4 rounded-3xl border-l-4 shadow-[0_8px_30px_rgb(0,0,0,0.02)] ${
           mission.isSpecial
-            ? "bg-gradient-to-r from-amber-50 to-orange-50 border-orange-400"
-            : "bg-white border-blue-500"
+            ? "bg-gradient-to-r from-amber-500/8 via-amber-50/10 to-transparent border border-slate-100 border-l-amber-500"
+            : "bg-white border border-slate-100 border-l-[#1e3a5f]"
         }`}
       >
         <div className="flex items-center gap-2 mb-1.5">
-          <span className={`text-sm font-bold tracking-tight ${mission.isSpecial ? "text-orange-600" : "text-slate-500"}`}>
+          <span className={`text-[10px] font-black uppercase tracking-widest ${mission.isSpecial ? "text-amber-600" : "text-slate-400"}`}>
             {mission.title}
           </span>
         </div>
-        <p className={`font-extrabold text-[15px] sm:text-base leading-snug ${
-          mission.isSpecial ? "text-orange-700" : "text-blue-700"
+        <p className={`font-black text-[15px] sm:text-base leading-snug tracking-tight ${
+          mission.isSpecial ? "text-amber-800" : "text-[#1e3a5f]"
         }`}>
           {mission.message}
         </p>
         
         {/* 装飾用背景アイコン */}
-        {mission.isSpecial && (
-          <div className="absolute -right-4 -bottom-4 text-orange-200/50 text-6xl rotate-12 pointer-events-none select-none">
+        {mission.isSpecial ? (
+          <div className="absolute -right-4 -bottom-4 text-amber-500/20 text-6xl rotate-12 pointer-events-none select-none">
             👑
+          </div>
+        ) : (
+          <div className="absolute -right-4 -bottom-4 text-[#1e3a5f]/5 text-6xl rotate-12 pointer-events-none select-none">
+            🎯
           </div>
         )}
       </motion.div>

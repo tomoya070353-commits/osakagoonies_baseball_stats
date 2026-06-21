@@ -43,12 +43,12 @@ export default function BattingOrderStats({ player }: { player: PlayerStats }) {
   });
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm w-full">
-      <h3 className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-3">
+    <div className="bg-white rounded-3xl border border-slate-100 p-4.5 shadow-[0_8px_30px_rgb(0,0,0,0.02)] w-full">
+      <h3 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-3.5 px-1">
         打順別成績
       </h3>
 
-      <div className="flex justify-between items-center text-xs text-slate-400 pb-2 border-b border-slate-100 px-2">
+      <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider text-slate-400 pb-2 border-b border-slate-100/50 px-2">
         <span className="w-10 text-center">打順</span>
         <span className="flex-1 text-center">打数 - 安打</span>
         <span className="w-12 text-right">打率</span>
@@ -62,32 +62,32 @@ export default function BattingOrderStats({ player }: { player: PlayerStats }) {
           return (
             <div
               key={stat.order}
-              className={`flex justify-between items-center py-2.5 border-b border-slate-50 last:border-0 px-2 ${
-                isZero ? "opacity-50" : ""
+              className={`flex justify-between items-center py-2.5 border-b border-slate-50 last:border-0 px-2 transition-colors duration-200 hover:bg-slate-50/40 rounded-xl ${
+                isZero ? "opacity-40" : ""
               }`}
             >
               <div className="w-10 flex justify-center">
                 <div
-                  className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                  className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-black transition-all ${
                     isHighest
-                      ? "bg-[#1e3a5f] text-white shadow-sm"
-                      : "bg-slate-100 text-slate-600"
+                      ? "bg-gradient-to-br from-[#1e3a5f] to-[#319795] text-white shadow-sm scale-105"
+                      : "bg-slate-100/80 text-slate-500 border border-slate-200/20"
                   }`}
                 >
                   {stat.order}
                 </div>
               </div>
 
-              <div className="flex-1 text-center text-sm font-medium text-slate-700 tracking-wide">
-                {stat.atBats} - {stat.hits}
+              <div className="flex-1 text-center text-sm font-semibold text-slate-700 tracking-wide">
+                {stat.atBats} <span className="text-slate-300 font-normal">/</span> {stat.hits}
               </div>
 
               <div
-                className={`w-12 text-right text-sm ${
-                  isHighest ? "text-red-600 font-bold" : "text-slate-700 font-semibold"
+                className={`w-12 text-right text-sm font-mono ${
+                  isHighest ? "text-[#e53e3e] font-extrabold" : "text-slate-600 font-bold"
                 }`}
               >
-                {isZero ? "-" : stat.avg.toFixed(3).replace(/^0/, "")}
+                {isZero ? "—" : stat.avg.toFixed(3).replace(/^0/, ".")}
               </div>
             </div>
           );

@@ -27,7 +27,6 @@ export default function AmidakujiDashboard({ players, onBack }: AmidakujiDashboa
     const [mode, setMode] = useState<Mode>("custom");
     const [customGoals, setCustomGoals] = useState<CustomGoal[]>([
         { id: "g1", label: "幹事", count: 1 },
-        { id: "g2", label: "奢り", count: 1 },
     ]);
     const [defaultHitLabel, setDefaultHitLabel] = useState("一般");
 

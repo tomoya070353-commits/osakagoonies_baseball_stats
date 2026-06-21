@@ -92,19 +92,19 @@ export default function ConditionBiorhythm({ player }: ConditionBiorhythmProps) 
     : "";
 
   return (
-    <div className="bg-white border border-slate-200 shadow-sm rounded-2xl overflow-hidden mb-5">
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-100 bg-slate-50">
-        <span className="text-lg">📈</span>
-        <h3 className="text-sm font-bold text-slate-700">コンディション・バイオリズム <span className="text-xs font-normal text-slate-400 ml-1">(直近5試合)</span></h3>
+    <div className="bg-white border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.02)] rounded-3xl overflow-hidden mb-5">
+      <div className="flex items-center gap-2 px-5 py-4 border-b border-slate-50 bg-slate-50/40">
+        <span className="text-base">📈</span>
+        <h3 className="text-xs font-bold text-[#1e3a5f] uppercase tracking-wider">コンディション・バイオリズム <span className="text-[10px] font-medium text-slate-400 ml-1 normal-case">(直近5試合)</span></h3>
       </div>
 
       <div className="relative p-4 flex justify-center items-center" ref={ref}>
         {/* Y軸のガイドライン（背景） */}
         <div className="absolute inset-0 pointer-events-none flex flex-col justify-between" 
              style={{ padding: `${paddingYTop + 16}px ${paddingX + 16}px ${paddingYBottom + 16}px` }}>
-          <div className="w-full border-t border-dashed border-slate-200 h-0" />
-          <div className="w-full border-t border-dashed border-slate-200 h-0" />
-          <div className="w-full border-t border-dashed border-slate-200 h-0" />
+          <div className="w-full border-t border-dashed border-slate-100 h-0" />
+          <div className="w-full border-t border-dashed border-slate-100 h-0" />
+          <div className="w-full border-t border-dashed border-slate-100 h-0" />
         </div>
 
         {/* SVGグラフ本体 */}
@@ -115,13 +115,13 @@ export default function ConditionBiorhythm({ player }: ConditionBiorhythmProps) 
           <defs>
             {/* ラインのグラデーション */}
             <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#94a3b8" />
+              <stop offset="0%" stopColor="#319795" />
               <stop offset="100%" stopColor="#1e3a5f" />
             </linearGradient>
             
             {/* ドロップシャドウ */}
             <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-              <feDropShadow dx="0" dy="4" stdDeviation="3" floodOpacity="0.15" />
+              <feDropShadow dx="0" dy="4" stdDeviation="3" floodOpacity="0.10" />
             </filter>
           </defs>
 
@@ -151,19 +151,19 @@ export default function ConditionBiorhythm({ player }: ConditionBiorhythmProps) 
                 <line 
                   x1={p.x} y1={p.y} 
                   x2={p.x} y2={height - 20} 
-                  stroke="#e2e8f0" 
-                  strokeWidth="1" 
-                  strokeDasharray="2 2" 
+                  stroke="#f1f5f9" 
+                  strokeWidth="1.2" 
+                  strokeDasharray="3 3" 
                 />
                 
                 {/* X軸のラベル（日付） */}
                 <text
                   x={p.x}
                   y={height - 5}
-                  fontSize="10"
+                  fontSize="9"
                   fill="#94a3b8"
                   textAnchor="middle"
-                  className="font-medium"
+                  className="font-bold"
                 >
                   {p.data.date}
                 </text>
@@ -172,8 +172,8 @@ export default function ConditionBiorhythm({ player }: ConditionBiorhythmProps) 
                 <motion.circle
                   cx={p.x}
                   cy={p.y}
-                  r={isHovered ? 6 : 4.5}
-                  fill={isGood ? "#1e3a5f" : "#94a3b8"}
+                  r={isHovered ? 5.5 : 4}
+                  fill={isGood ? "#319795" : "#94a3b8"}
                   stroke="#ffffff"
                   strokeWidth="2"
                   filter="url(#shadow)"
@@ -209,7 +209,7 @@ export default function ConditionBiorhythm({ player }: ConditionBiorhythmProps) 
                     y={p.y - 35}
                     width="70"
                     height="20"
-                    rx="4"
+                    rx="6"
                     fill="#1e293b"
                     filter="url(#shadow)"
                   />
@@ -221,8 +221,8 @@ export default function ConditionBiorhythm({ player }: ConditionBiorhythmProps) 
                   {/* テキスト */}
                   <text
                     x={p.x}
-                    y={p.y - 21}
-                    fontSize="9"
+                    y={p.y - 22}
+                    fontSize="8.5"
                     fill="#ffffff"
                     textAnchor="middle"
                     className="font-bold"

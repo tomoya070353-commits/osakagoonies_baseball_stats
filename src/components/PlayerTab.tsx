@@ -43,12 +43,12 @@ export default function PlayerTab({ players, selected, onSelect, pitchers }: Pla
 
       {/* ── セグメントコントロール（野手 / 投手） ── */}
       <div className="px-5">
-        <div className="flex items-center bg-slate-100 rounded-xl p-1 gap-1">
+        <div className="flex items-center bg-slate-200/50 backdrop-blur-sm rounded-2xl p-1.5 gap-1 border border-slate-100/50 shadow-inner">
           <button
             onClick={() => setCategory("batter")}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-semibold transition-all ${category === "batter"
-              ? "bg-white shadow-sm text-[#1e3a5f]"
-              : "text-slate-400 hover:text-slate-600"
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${category === "batter"
+              ? "bg-gradient-to-r from-[#1e3a5f] to-[#2c5282] text-white shadow-md shadow-[#1e3a5f]/15"
+              : "text-slate-500 hover:text-slate-800"
               }`}
           >
             <span>⚾</span>
@@ -56,9 +56,9 @@ export default function PlayerTab({ players, selected, onSelect, pitchers }: Pla
           </button>
           <button
             onClick={() => setCategory("pitcher")}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-semibold transition-all ${category === "pitcher"
-              ? "bg-white shadow-sm text-[#1e3a5f]"
-              : "text-slate-400 hover:text-slate-600"
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${category === "pitcher"
+              ? "bg-gradient-to-r from-[#1e3a5f] to-[#2c5282] text-white shadow-md shadow-[#1e3a5f]/15"
+              : "text-slate-500 hover:text-slate-800"
               }`}
           >
             <span>🏟️</span>
